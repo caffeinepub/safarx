@@ -1,60 +1,33 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix admin dashboard: enquiries loading failure and community stats",
+  "title": "Fix Connect Identity / Google Sign-In button hidden behind header",
   "requirements": [
     {
-      "id": "REQ-31",
-      "summary": "Debug and fix the admin dashboard enquiries fetch to ensure proper actor initialization guard, correct backend method name, and proper data mapping",
+      "id": "REQ-35",
+      "summary": "Fix the 'Connect Identity' / Google Sign-In button on the Community page and CommunityAuthModal so it is no longer obscured by the fixed site header by ensuring proper z-index stacking and modal positioning",
       "acceptanceCriteria": [
-        "Opening /admin (while logged in) successfully fetches and displays all submitted enquiries without an error state.",
-        "Each inquiry card shows name, email, phone, destination/travel interest, message, and submission timestamp.",
-        "The Delete button on each card calls the correct backend delete function and removes the entry from the list on success.",
-        "If no inquiries exist, a friendly empty-state message is shown instead of an error."
+        "The Google Sign-In / Connect Identity button is fully visible and not overlapped by the site header on all screen sizes.",
+        "The CommunityAuthModal dialog/panel renders above the fixed header (z-index higher than the header's stacking context).",
+        "Clicking the Sign-In button is not blocked by the header element on desktop and mobile viewports.",
+        "The modal overlay (if present) also sits above the header and covers the full viewport.",
+        "No regression to header functionality or other modal/dialog components."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/Header.tsx",
           "operation": "modify",
-          "description": "Fix the `useInquiries` React Query hook to include an `enabled: !!actor` guard that prevents the query from firing before the actor is available. Verify that the backend method being called matches `getAllInquiries` from the backend interface. Ensure proper error handling and data type alignment with the `Inquiry` interface from backend.d.ts."
+          "description": "Review the current z-index value used by the fixed header and document it. Ensure the header uses a consistent z-index value (e.g., z-40) that is lower than modal/dialog components. Do not modify the header's layout, navigation links, or scroll-aware background behavior per constraints."
         },
         {
-          "path": "frontend/src/pages/Admin.tsx",
+          "path": "frontend/src/components/CommunityAuthModal.tsx",
           "operation": "modify",
-          "description": "Update the Admin dashboard to properly handle the loading and error states from the `useInquiries` hook. Ensure the inquiry cards correctly map and display all fields (name, email, phone, destination, message, timestamp). Add a friendly empty-state message when no inquiries exist. Verify the delete functionality properly calls the backend and updates the UI on success."
-        }
-      ]
-    },
-    {
-      "id": "REQ-33",
-      "summary": "Add React Query hooks for fetching community statistics and user list from the backend",
-      "acceptanceCriteria": [
-        "`useCommunityStats` hook returns `{ totalMembers, totalPosts }` from the backend.",
-        "`useCommunityUserList` hook returns an array of `{ userId, username, displayName, joinedAt }` objects.",
-        "Both hooks are exported from `useQueries.ts` and do not fire until the actor is available."
-      ],
-      "file_operations": [
+          "description": "Update the modal dialog container and overlay to use a z-index higher than the header (z-50 or higher). Ensure the Google Sign-In button within the modal is not obscured by adding sufficient top padding or margin to account for the fixed header height. Verify that both the modal overlay and dialog content have proper z-index stacking to appear above all other page elements including the header."
+        },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/Community.tsx",
           "operation": "modify",
-          "description": "Add two new React Query hooks: `useCommunityStats` that calls `actor.getCommunityStats()` returning `{ totalMembers: bigint, totalPosts: bigint }`, and `useCommunityUserList` that calls `actor.getAllCommunityUsers()` returning an array of user objects with userId, username, displayName, and joinedAt fields. Both hooks must use the actor from `useActor`, include `enabled: !!actor` guards, and follow the same pattern as existing query hooks in the file. Export both hooks for use in components."
-        }
-      ]
-    },
-    {
-      "id": "REQ-34",
-      "summary": "Add a Community Stats section to the Admin Dashboard displaying member count, post count, and a list of registered users",
-      "acceptanceCriteria": [
-        "Admin dashboard shows a 'Community Stats' section with total member count and total post count displayed as stat badges or summary cards.",
-        "A list/table of all community users is rendered showing displayName and username for each user.",
-        "Loading states show skeletons and error states show an inline error message rather than crashing the page.",
-        "The community stats section is visually consistent with the warm-earthy SafarX.in theme."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/Admin.tsx",
-          "operation": "modify",
-          "description": "Add a 'Community Stats' section below the enquiries list that uses the `useCommunityStats` and `useCommunityUserList` hooks. Display total members and total posts as stat cards with saffron/terracotta headings. Render a scrollable table or card list showing each user's displayName and username. Include loading skeletons while fetching (e.g., using shadcn/ui Skeleton components) and inline error messages on failure. Style consistently with the existing warm-earthy SafarX.in theme using ivory card backgrounds, saffron accents, and the site's typography."
+          "description": "Ensure any inline auth panel or trigger button for the CommunityAuthModal on the Community page has appropriate z-index and positioning so it renders above the fixed header. Add proper spacing or offset from the top of the viewport to prevent overlap with the header on all screen sizes."
         }
       ]
     }

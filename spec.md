@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the admin dashboard enquiries loading failure and add community statistics display.
+**Goal:** Fix the Connect Identity / Google Sign-In button on the Community page being hidden behind the fixed site header.
 
 **Planned changes:**
-- Debug and fix the enquiries fetch in `Admin.tsx` and `useQueries.ts` to correctly call the backend method, use an `enabled: !!actor` guard, and properly map the returned data to the card/table display.
-- Add `getCommunityStats()` and `getAllCommunityUsers()` query functions to `backend/main.mo`, reading from the existing stable `communityUsers` map without exposing `passwordHash`.
-- Add `useCommunityStats` and `useCommunityUserList` React Query hooks in `useQueries.ts`, both guarded with `enabled: !!actor`.
-- Add a "Community Stats" section to `Admin.tsx` showing total member count, total post count, and a scrollable list of community users (display name + username), with loading skeletons and error states, styled consistently with the SafarX.in warm-earthy theme.
+- Increase the z-index of the CommunityAuthModal dialog/panel and its overlay so it renders above the fixed header
+- Ensure the modal container has sufficient top offset or padding so the button is not obscured by the navigation bar
+- Verify the trigger button and overlay are fully visible and clickable on both desktop and mobile viewports
 
-**User-visible outcome:** The admin dashboard successfully loads and displays all enquiries, and shows a new Community Stats section with member/post counts and a user list.
+**User-visible outcome:** Users can see and click the Google Sign-In / Connect Identity button on the Community page without it being covered by the site header.

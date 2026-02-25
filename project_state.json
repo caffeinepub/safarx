@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 17,
+  "projectStateVersion": 19,
   "summary": "Travel agency website for SafarX.in showcasing attractive and viable travel locations across India.",
   "architectural_notes": [
     "Project is a travel agency website under the brand/domain SafarX.in",
@@ -10,7 +10,8 @@
   ],
   "known_issues": [
     "Admin dashboard: enquiries fail to load",
-    "Admin dashboard: community stats (total members, usernames/display names list, total posts) not displaying correctly"
+    "Admin dashboard: community stats (total members, usernames/display names list, total posts) not displaying correctly",
+    "Connect Identity / Google Sign-In button is hidden behind the site header (z-index or positioning issue)"
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -219,6 +220,14 @@
       "title": "Update the Admin Dashboard page `frontend/src/pages/Admin.tsx` to display a 'Community Stats' section below the enquiries list. This section must show: (1) Total registered community members (number), (2) Total community posts (number), and (3) A scrollable table or card list of all registered community users showing their display name and username side by side. Use the `useCommunityStats` and `useCommunityUserList` hooks. Show loading skeletons while fetching and friendly error messages on failure. Style the section consistently with the existing warm-earthy SafarX.in theme (saffron/terracotta headings, ivory card backgrounds).",
       "reqIds": [
         "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-connect-identity-google-sign-in-button-on-the-community-page-and-communityauthmodal-so-it-is-no-longer-obscured-by-the-fixed-site-header-ensure-the-modal-panel-and-its-trigger-button-have-a-z-index-higher-than-the-header-the-header-uses-a-fixed-position-with-its-own-stacking-context-and-that-any-modal-overlay-dialog-container-or-inline-auth-panel-is-rendered-with-sufficient-z-index-e-g-z-50-or-higher-and-correct-top-padding-offset-so-the-button-is-fully-visible-and-clickable-without-being-covered-by-the-navigation-bar",
+      "title": "Fix the 'Connect Identity' / Google Sign-In button on the Community page and CommunityAuthModal so it is no longer obscured by the fixed site header. Ensure the modal/panel and its trigger button have a z-index higher than the header (the header uses a fixed position with its own stacking context), and that any modal overlay, dialog container, or inline auth panel is rendered with sufficient z-index (e.g., z-50 or higher) and correct top/padding offset so the button is fully visible and clickable without being covered by the navigation bar.",
+      "reqIds": [
+        "REQ-35"
       ],
       "version": 1
     }

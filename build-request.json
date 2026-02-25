@@ -1,100 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Fix admin dashboard: enquiries loading failure and community stats",
+  "title": "Fix Connect Identity / Google Sign-In button hidden behind header",
   "projectName": "SafarX.in",
-  "priority": "high",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-31",
-      "text": "Debug and fix the admin dashboard enquiries fetch in `frontend/src/pages/Admin.tsx` and `frontend/src/hooks/useQueries.ts`. Inspect the backend actor call used to retrieve all inquiries (e.g. `getAllInquiries` or equivalent), ensure the correct method name is being called on the actor, that the actor hook is resolving properly before the query fires (use `enabled: !!actor` guard in React Query), and that the returned data shape is correctly mapped to the card/table display. If the backend method name or return type has drifted, align the frontend call to match the actual exported function in `backend/main.mo`.",
+      "id": "REQ-35",
+      "text": "Fix the 'Connect Identity' / Google Sign-In button on the Community page and CommunityAuthModal so it is no longer obscured by the fixed site header. Ensure the modal/panel and its trigger button have a z-index higher than the header (the header uses a fixed position with its own stacking context), and that any modal overlay, dialog container, or inline auth panel is rendered with sufficient z-index (e.g., z-50 or higher) and correct top/padding offset so the button is fully visible and clickable without being covered by the navigation bar.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-latest"
         ],
         "quotes": [
-          "the enquiries are failed to load"
+          "connect identity button is hiding behind the header, so fix that button"
         ]
       },
       "acceptanceCriteria": [
-        "Opening /admin (while logged in) successfully fetches and displays all submitted enquiries without an error state.",
-        "Each inquiry card shows name, email, phone, destination/travel interest, message, and submission timestamp.",
-        "The Delete button on each card calls the correct backend delete function and removes the entry from the list on success.",
-        "If no inquiries exist, a friendly empty-state message is shown instead of an error."
-      ]
-    },
-    {
-      "id": "REQ-32",
-      "text": "Add backend query functions to `backend/main.mo` to expose community statistics needed by the admin dashboard: (1) `getCommunityStats() : async { totalMembers: Nat; totalPosts: Nat }` — returns the count of all registered community users and all community posts; (2) `getAllCommunityUsers() : async [{ userId: Nat; username: Text; displayName: Text; joinedAt: Int }]` — returns a list of all registered community users (no passwords). These must read from the existing stable `communityUsers` map.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Total number of registered community members",
-          "A list of registered usernames and display names",
-          "Total number of community posts"
-        ]
-      },
-      "acceptanceCriteria": [
-        "`getCommunityStats()` returns correct `totalMembers` and `totalPosts` counts reflecting current stable state.",
-        "`getAllCommunityUsers()` returns an array of objects each containing userId, username, displayName, and joinedAt — no passwordHash field included.",
-        "Both functions are publicly accessible query methods (no admin token required at the canister level, since the admin frontend route is already protected)."
-      ]
-    },
-    {
-      "id": "REQ-33",
-      "text": "Add React Query hooks in `frontend/src/hooks/useQueries.ts` for the new community stats backend calls: `useCommunityStats` (calls `getCommunityStats`) and `useCommunityUserList` (calls `getAllCommunityUsers`). Both hooks must use the actor from `useActor` and include an `enabled: !!actor` guard.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Total number of registered community members",
-          "A list of registered usernames and display names",
-          "Total number of community posts"
-        ]
-      },
-      "acceptanceCriteria": [
-        "`useCommunityStats` hook returns `{ totalMembers, totalPosts }` from the backend.",
-        "`useCommunityUserList` hook returns an array of `{ userId, username, displayName, joinedAt }` objects.",
-        "Both hooks are exported from `useQueries.ts` and do not fire until the actor is available."
-      ]
-    },
-    {
-      "id": "REQ-34",
-      "text": "Update the Admin Dashboard page `frontend/src/pages/Admin.tsx` to display a 'Community Stats' section below the enquiries list. This section must show: (1) Total registered community members (number), (2) Total community posts (number), and (3) A scrollable table or card list of all registered community users showing their display name and username side by side. Use the `useCommunityStats` and `useCommunityUserList` hooks. Show loading skeletons while fetching and friendly error messages on failure. Style the section consistently with the existing warm-earthy SafarX.in theme (saffron/terracotta headings, ivory card backgrounds).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "not able to get Total number of registered community members",
-          "A list of registered usernames and display names",
-          "Total number of community posts"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Admin dashboard shows a 'Community Stats' section with total member count and total post count displayed as stat badges or summary cards.",
-        "A list/table of all community users is rendered showing displayName and username for each user.",
-        "Loading states show skeletons and error states show an inline error message rather than crashing the page.",
-        "The community stats section is visually consistent with the warm-earthy SafarX.in theme."
+        "The Google Sign-In / Connect Identity button is fully visible and not overlapped by the site header on all screen sizes.",
+        "The CommunityAuthModal dialog/panel renders above the fixed header (z-index higher than the header's stacking context).",
+        "Clicking the Sign-In button is not blocked by the header element on desktop and mobile viewports.",
+        "The modal overlay (if present) also sits above the header and covers the full viewport.",
+        "No regression to header functionality or other modal/dialog components."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
-    "All Motoko logic must remain in the single actor file backend/main.mo.",
-    "Do not expose passwordHash in any backend community user query response."
+    "Do not modify files listed in frontend.immutablePaths (useInternetIdentity.ts, useActor.ts, main.tsx, frontend/src/components/ui).",
+    "Do not alter the header's layout, navigation links, or scroll-aware background behavior."
   ],
   "nonGoals": [
-    "Adding new admin authentication mechanisms.",
-    "Changing the existing community post or inquiry data schemas.",
-    "Implementing real-time updates or WebSocket-based refresh for admin stats.",
-    "Modifying the community Feed or Profile pages."
+    "Redesigning the header or changing its height.",
+    "Changing the Google Sign-In authentication flow or session logic.",
+    "Fixing any other known issues (admin enquiries fetch, community stats display)."
   ],
   "imageRequirements": {
     "required": [],

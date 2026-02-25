@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-debug-and-fix-the-admin-dashboard-enquiries-fetch-in-frontend-src-pages-admin-tsx-and-frontend-src-hooks-usequeries-ts-inspect-the-backend-actor-call-used-to-retrieve-all-inquiries-e-g-getallinquiries-or-equivalent-ensure-the-correct-method-name-is-being-called-on-the-actor-that-the-actor-hook-is-resolving-properly-before-the-query-fires-use-enabled-actor-guard-in-react-query-and-that-the-returned-data-shape-is-correctly-mapped-to-the-card-table-display-if-the-backend-method-name-or-return-type-has-drifted-align-the-frontend-call-to-match-the-actual-exported-function-in-backend-main-mo",
-      "featureTitle": "Debug and fix the admin dashboard enquiries fetch in `frontend/src/pages/Admin.tsx` and `frontend/src/hooks/useQueries.ts`. Inspect the backend actor call used to retrieve all inquiries (e.g. `getAllInquiries` or equivalent), ensure the correct method name is being called on the actor, that the actor hook is resolving properly before the query fires (use `enabled: !!actor` guard in React Query), and that the returned data shape is correctly mapped to the card/table display. If the backend method name or return type has drifted, align the frontend call to match the actual exported function in `backend/main.mo`.",
+      "featureId": "feature-fix-the-connect-identity-google-sign-in-button-on-the-community-page-and-communityauthmodal-so-it-is-no-longer-obscured-by-the-fixed-site-header-ensure-the-modal-panel-and-its-trigger-button-have-a-z-index-higher-than-the-header-the-header-uses-a-fixed-position-with-its-own-stacking-context-and-that-any-modal-overlay-dialog-container-or-inline-auth-panel-is-rendered-with-sufficient-z-index-e-g-z-50-or-higher-and-correct-top-padding-offset-so-the-button-is-fully-visible-and-clickable-without-being-covered-by-the-navigation-bar",
+      "featureTitle": "Fix the 'Connect Identity' / Google Sign-In button on the Community page and CommunityAuthModal so it is no longer obscured by the fixed site header. Ensure the modal/panel and its trigger button have a z-index higher than the header (the header uses a fixed position with its own stacking context), and that any modal overlay, dialog container, or inline auth panel is rendered with sufficient z-index (e.g., z-50 or higher) and correct top/padding offset so the button is fully visible and clickable without being covered by the navigation bar.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/Admin.tsx"
+        "frontend/src/components/Header.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -18,47 +17,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-31"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-react-query-hooks-in-frontend-src-hooks-usequeries-ts-for-the-new-community-stats-backend-calls-usecommunitystats-calls-getcommunitystats-and-usecommunityuserlist-calls-getallcommunityusers-both-hooks-must-use-the-actor-from-useactor-and-include-an-enabled-actor-guard",
-      "featureTitle": "Add React Query hooks in `frontend/src/hooks/useQueries.ts` for the new community stats backend calls: `useCommunityStats` (calls `getCommunityStats`) and `useCommunityUserList` (calls `getAllCommunityUsers`). Both hooks must use the actor from `useActor` and include an `enabled: !!actor` guard.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-33"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-admin-dashboard-page-frontend-src-pages-admin-tsx-to-display-a-community-stats-section-below-the-enquiries-list-this-section-must-show-1-total-registered-community-members-number-2-total-community-posts-number-and-3-a-scrollable-table-or-card-list-of-all-registered-community-users-showing-their-display-name-and-username-side-by-side-use-the-usecommunitystats-and-usecommunityuserlist-hooks-show-loading-skeletons-while-fetching-and-friendly-error-messages-on-failure-style-the-section-consistently-with-the-existing-warm-earthy-safarx-in-theme-saffron-terracotta-headings-ivory-card-backgrounds",
-      "featureTitle": "Update the Admin Dashboard page `frontend/src/pages/Admin.tsx` to display a 'Community Stats' section below the enquiries list. This section must show: (1) Total registered community members (number), (2) Total community posts (number), and (3) A scrollable table or card list of all registered community users showing their display name and username side by side. Use the `useCommunityStats` and `useCommunityUserList` hooks. Show loading skeletons while fetching and friendly error messages on failure. Style the section consistently with the existing warm-earthy SafarX.in theme (saffron/terracotta headings, ivory card backgrounds).",
-      "files": [
-        "frontend/src/pages/Admin.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-34"
+        "REQ-35"
       ],
       "confidence": "high"
     }
