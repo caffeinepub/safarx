@@ -23,9 +23,20 @@ export default function Destinations() {
     const [activeRegion, setActiveRegion] = useState<Region>('All');
 
     useSEO({
-        title: 'Explore Indian Destinations | SafarX Travel Guide',
+        title: 'Destinations',
         description:
-            "Browse SafarX's comprehensive guide to Indian destinations. From Rajasthan's heritage cities to Himalayan hill stations, Kerala backwaters to Andaman beaches - find your perfect Indian destination.",
+            "Browse India's most breathtaking destinations with SafarX — from Himalayan peaks and Rajasthan forts to Kerala backwaters, Andaman beaches, and Northeast tribal trails.",
+        ogTitle: 'Explore Indian Destinations — SafarX',
+        ogDescription:
+            "Browse 20+ handpicked destinations across India — Himalayan peaks, Rajasthan forts, Kerala backwaters, Andaman beaches, and Northeast tribal trails, all on SafarX.",
+        ogImage: '/assets/generated/hilly-destinations-banner.dim_1400x600.png',
+        ogUrl: 'https://safarx.in/destinations',
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'Explore Indian Destinations — SafarX',
+        twitterDescription:
+            "Browse 20+ handpicked destinations across India — Himalayan peaks, Rajasthan forts, Kerala backwaters, Andaman beaches, and Northeast tribal trails, all on SafarX.",
+        twitterImage: '/assets/generated/hilly-destinations-banner.dim_1400x600.png',
     });
 
     // Inject BreadcrumbList JSON-LD structured data
@@ -79,73 +90,74 @@ export default function Destinations() {
                 </div>
             </div>
 
-            {/* Filter & Search */}
-            <div className="sticky top-16 md:top-20 z-30 bg-background/95 backdrop-blur-md border-b border-border shadow-xs">
+            {/* Search & Filter */}
+            <section className="sticky top-16 md:top-20 z-30 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                        {/* Region Tabs */}
-                        <Tabs
-                            value={activeRegion}
-                            onValueChange={(v) => setActiveRegion(v as Region)}
-                            className="w-full sm:w-auto"
-                        >
-                            <TabsList className="bg-muted h-auto flex-wrap gap-1 p-1">
-                                {regions.map((region) => (
-                                    <TabsTrigger
-                                        key={region}
-                                        value={region}
-                                        className="font-body text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md px-3 py-1.5"
-                                    >
-                                        {region}
-                                    </TabsTrigger>
-                                ))}
-                            </TabsList>
-                        </Tabs>
-
-                        {/* Search */}
-                        <div className="relative w-full sm:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search destinations..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9 font-body text-sm bg-card border-border"
-                            />
-                        </div>
+                    {/* Search */}
+                    <div className="relative mb-4">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Search destinations, states…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-9 font-body text-sm bg-background border-border rounded-full h-10"
+                        />
                     </div>
+
+                    {/* Region Tabs */}
+                    <Tabs value={activeRegion} onValueChange={(v) => setActiveRegion(v as Region)}>
+                        <TabsList className="bg-transparent gap-1 h-auto flex-wrap justify-start p-0">
+                            {regions.map((region) => (
+                                <TabsTrigger
+                                    key={region}
+                                    value={region}
+                                    className="px-4 py-1.5 rounded-full font-body text-sm font-medium data-[state=active]:bg-saffron-500 data-[state=active]:text-terracotta-900 data-[state=active]:shadow-sm text-muted-foreground hover:text-foreground transition-all"
+                                >
+                                    {region}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                        {regions.map((region) => (
+                            <TabsContent key={region} value={region} className="mt-0" />
+                        ))}
+                    </Tabs>
                 </div>
-            </div>
+            </section>
 
             {/* Region Description */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-2">
-                <p className="font-cormorant italic text-lg text-muted-foreground">
-                    {regionDescriptions[activeRegion]}
-                </p>
-                <p className="font-body text-sm text-muted-foreground mt-1">
-                    Showing <span className="font-semibold text-foreground">{filtered.length}</span> destination{filtered.length !== 1 ? 's' : ''}
-                </p>
-            </div>
+            <section className="py-6 bg-ivory-50 border-b border-border">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <p className="font-cormorant italic text-lg text-muted-foreground text-center">
+                        {regionDescriptions[activeRegion]}
+                    </p>
+                </div>
+            </section>
 
             {/* Destinations Grid */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {filtered.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filtered.map((dest) => (
-                            <DestinationCard key={dest.id} destination={dest} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-20">
-                        <div className="text-5xl mb-4">🗺️</div>
-                        <h3 className="font-display font-semibold text-xl text-foreground mb-2">
-                            No destinations found
-                        </h3>
-                        <p className="font-body text-muted-foreground">
-                            Try adjusting your search or filter.
-                        </p>
-                    </div>
-                )}
-            </div>
+            <section className="py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {filtered.length === 0 ? (
+                        <div className="text-center py-20">
+                            <div className="text-5xl mb-4">🔍</div>
+                            <p className="font-body text-muted-foreground">
+                                No destinations found. Try a different search or region.
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <p className="font-body text-sm text-muted-foreground mb-6">
+                                Showing {filtered.length} destination{filtered.length !== 1 ? 's' : ''}
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {filtered.map((dest) => (
+                                    <DestinationCard key={dest.id} destination={dest} />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+            </section>
         </main>
     );
 }

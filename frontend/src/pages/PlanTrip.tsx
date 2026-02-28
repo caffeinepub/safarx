@@ -41,9 +41,20 @@ export default function PlanTrip() {
     const [isGenerating, setIsGenerating] = useState(false);
 
     useSEO({
-        title: 'AI Trip Planner for India | SafarX Custom Itineraries',
+        title: 'Plan My Trip',
         description:
-            "Plan your perfect Indian vacation with SafarX's AI-powered trip planner. Get personalized day-by-day itineraries for any destination, duration, and travel style. Smart travel planning made easy.",
+            "Use SafarX's AI-powered trip planner to build a custom day-by-day India itinerary. Choose your destination, duration, travel style, and group type for a personalised journey.",
+        ogTitle: 'Plan Your Perfect India Trip — SafarX AI Itinerary Planner',
+        ogDescription:
+            "Build a personalised day-by-day India itinerary in seconds with SafarX's AI trip planner. Pick your destination, travel style, and group type for a journey crafted just for you.",
+        ogImage: '/assets/generated/itinerary-planner-hero.dim_1200x500.png',
+        ogUrl: 'https://safarx.in/plan',
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'Plan Your Perfect India Trip — SafarX AI Itinerary Planner',
+        twitterDescription:
+            "Build a personalised day-by-day India itinerary in seconds with SafarX's AI trip planner. Pick your destination, travel style, and group type for a journey crafted just for you.",
+        twitterImage: '/assets/generated/itinerary-planner-hero.dim_1200x500.png',
     });
 
     const { handleSubmit, setValue, watch, formState: { errors } } = useForm<PlanFormData>({

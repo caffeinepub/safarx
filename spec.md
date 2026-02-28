@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add Google Analytics tracking (G-73VJ1TQ3D7) to the SafarX application so it loads on every page.
+**Goal:** Add an XML sitemap and robots.txt to improve SafarX's search engine indexing.
 
 **Planned changes:**
-- Insert the `gtag.js` async script tag and the inline gtag configuration script (with tracking ID `G-73VJ1TQ3D7`) immediately after the opening `<head>` tag in `frontend/index.html`
-- Ensure no duplicate Google tag scripts exist in `frontend/index.html`
+- Create `frontend/public/sitemap.xml` listing all public pages (Home, Destinations, individual destination detail pages, Packages, Plan Trip, Contact, Community) with `<loc>`, `<lastmod>`, `<changefreq>`, and `<priority>` values using the canonical domain `https://safarx.in`
+- Create `frontend/public/robots.txt` that allows all crawlers and includes a `Sitemap` directive pointing to `https://safarx.in/sitemap.xml`
+- Add a `<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />` tag in `frontend/index.html`'s `<head>`
 
-**User-visible outcome:** Google Analytics will silently track all page visits across the entire SafarX application (Home, Destinations, Packages, PlanTrip, Contact, Community, Admin, etc.) via the single `index.html` entry point.
+**User-visible outcome:** Search engines can discover and crawl all SafarX pages via the sitemap served at `/sitemap.xml`, and the robots.txt guides crawlers appropriately.

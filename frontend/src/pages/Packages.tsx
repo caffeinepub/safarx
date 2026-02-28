@@ -13,9 +13,20 @@ export default function Packages() {
     const [activeCategory, setActiveCategory] = useState('All');
 
     useSEO({
-        title: 'Travel Packages for India | SafarX Curated Tours',
+        title: 'Travel Packages',
         description:
-            "Explore SafarX's handpicked travel packages for India. Himalayan adventures, Rajasthan heritage tours, Kerala backwater cruises, cultural expeditions, and beach getaways. Find your perfect Indian holiday package.",
+            'Explore handpicked India travel packages by SafarX — Himalayan adventures, Rajasthan heritage tours, Kerala backwater cruises, beach getaways, and cultural expeditions with detailed itineraries.',
+        ogTitle: 'Curated India Travel Packages — SafarX',
+        ogDescription:
+            'Discover handpicked India travel packages — Himalayan adventures, Rajasthan heritage tours, Kerala backwater cruises, beach getaways, and cultural expeditions crafted by SafarX experts.',
+        ogImage: '/assets/generated/packages-hero-banner.dim_1400x500.png',
+        ogUrl: 'https://safarx.in/packages',
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'Curated India Travel Packages — SafarX',
+        twitterDescription:
+            'Discover handpicked India travel packages — Himalayan adventures, Rajasthan heritage tours, Kerala backwater cruises, beach getaways, and cultural expeditions crafted by SafarX experts.',
+        twitterImage: '/assets/generated/packages-hero-banner.dim_1400x500.png',
     });
 
     // Inject BreadcrumbList JSON-LD structured data

@@ -11,12 +11,21 @@ function DestinationDetailContent({ id }: { id: string }) {
     useSEO(
         destination
             ? {
-                  title: `${destination.name} Travel Guide | SafarX - ${destination.region} India`,
-                  description: `Plan your trip to ${destination.name}, ${destination.state}. ${destination.fullDescription.substring(0, 140)}...`,
+                  title: `${destination.name}, ${destination.state}`,
+                  description: `Explore ${destination.name} in ${destination.state} with SafarX. Best time to visit: ${destination.bestTimeToVisit ?? 'year-round'}. ${destination.shortDescription}`,
+                  ogTitle: `${destination.name}, ${destination.state} — SafarX`,
+                  ogDescription: `${destination.shortDescription} Explore ${destination.name} with SafarX — best time to visit: ${destination.bestTimeToVisit ?? 'year-round'}.`,
+                  ogImage: destination.image,
+                  ogUrl: `https://safarx.in/destinations/${destination.id}`,
+                  ogType: 'article',
+                  twitterCard: 'summary_large_image',
+                  twitterTitle: `${destination.name}, ${destination.state} — SafarX`,
+                  twitterDescription: `${destination.shortDescription} Explore ${destination.name} with SafarX — best time to visit: ${destination.bestTimeToVisit ?? 'year-round'}.`,
+                  twitterImage: destination.image,
               }
             : {
-                  title: 'Destination Not Found | SafarX',
-                  description: 'The destination you are looking for could not be found. Browse all Indian destinations on SafarX.',
+                  title: 'Destination Not Found',
+                  description: 'The destination you are looking for could not be found. Browse all Indian destinations on SafarX and plan your perfect trip.',
               }
     );
 

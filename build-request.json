@@ -1,37 +1,59 @@
 {
   "kind": "build_request",
-  "title": "Add Google Analytics tag (G-73VJ1TQ3D7) to all pages",
+  "title": "Add XML sitemap for search engine indexing",
   "projectName": "SafarX",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Inject the Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) into the application so it loads on every page. Place the two <script> tags immediately after the opening <head> tag in frontend/index.html. Ensure only one Google tag is present — do not duplicate it if one already exists.",
+      "text": "Generate a static XML sitemap file at `frontend/public/sitemap.xml` that lists all public pages of the SafarX site including: Home (/), Destinations (/destinations), each individual destination detail page (/destinations/:id for all destinations in destinations.ts), Packages (/packages), Plan Trip (/plan-trip), Contact (/contact), and Community (/community). Each URL entry should include a <loc> with the canonical domain (safarx.in), a <lastmod> date, a <changefreq> value appropriate to the page type, and a <priority> value reflecting page importance (e.g., Home = 1.0, main sections = 0.8, detail pages = 0.6).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-5",
+          "msg-6"
         ],
         "quotes": [
-          "paste it in the code of every page of your website, immediately after the <head> element. Don't add more than one Google tag to each page."
+          "Want me to add one?",
+          "yess"
         ]
       },
       "acceptanceCriteria": [
-        "The gtag.js script tag with src 'https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7' appears as the first child of <head> in frontend/index.html.",
-        "The inline gtag configuration script (dataLayer, gtag('config', 'G-73VJ1TQ3D7')) follows immediately after the async gtag.js script tag.",
-        "No duplicate Google tag scripts exist anywhere in frontend/index.html.",
-        "All pages of the app (Home, Destinations, Packages, PlanTrip, Contact, Community, Admin, AdminLogin, DestinationDetail) load the Google Analytics tag since they all use the single index.html entry point."
+        "sitemap.xml is present in frontend/public/ and is served at /sitemap.xml",
+        "All public routes are listed including all destination detail pages derived from the static destinations data",
+        "Each <url> entry contains <loc>, <lastmod>, <changefreq>, and <priority> elements",
+        "The <loc> values use the canonical domain https://safarx.in",
+        "The sitemap is valid XML and passes standard sitemap schema validation"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add a sitemap reference to `frontend/index.html` by inserting a `<link rel=\"sitemap\" type=\"application/xml\" title=\"Sitemap\" href=\"/sitemap.xml\" />` tag in the document <head>, and also add a robots.txt file at `frontend/public/robots.txt` that allows all crawlers and points to the sitemap URL (https://safarx.in/sitemap.xml).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5",
+          "msg-6"
+        ],
+        "quotes": [
+          "A sitemap is essentially a map of all your website's pages that you submit to search engines"
+        ]
+      },
+      "acceptanceCriteria": [
+        "frontend/index.html contains a <link rel=\"sitemap\"> tag pointing to /sitemap.xml",
+        "frontend/public/robots.txt exists and contains a Sitemap directive pointing to https://safarx.in/sitemap.xml",
+        "robots.txt allows all user-agents to crawl the site"
       ]
     }
   ],
   "constraints": [
-    "Only one Google tag (G-73VJ1TQ3D7) must appear in the HTML — remove any existing gtag snippet before inserting the new one to avoid duplicates.",
-    "Do not modify any files listed in frontend.immutablePaths."
+    "Do not modify any files under frontend/src/hooks/ or frontend/src/components/ui/",
+    "Sitemap must be a static file, not dynamically generated at runtime via the backend"
   ],
   "nonGoals": [
-    "Adding Google Analytics to individual page components or route-level hooks.",
-    "Implementing custom event tracking beyond the base gtag configuration.",
-    "Modifying backend code."
+    "Dynamic sitemap generation via Motoko backend",
+    "Automatic sitemap submission to Google Search Console",
+    "Adding new pages or routes beyond what currently exists"
   ],
   "imageRequirements": {
     "required": [],

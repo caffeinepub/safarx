@@ -1,14 +1,16 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T21:20:31.512Z",
-  "summary": "REQ-1 is fully implemented. The Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) has been injected as the first two child elements of <head> in frontend/index.html, with the async script tag followed immediately by the inline dataLayer/gtag configuration script. No duplicate tags are present.",
+  "generatedAt": "2026-02-28T21:58:00.258Z",
+  "summary": "Both REQ-1 and REQ-2 are fully implemented. The static sitemap.xml is present at frontend/public/sitemap.xml with all required pages (Home, Destinations, Packages, Plan Trip, Community, Contact, and individual destination detail pages), each with <loc>, <lastmod>, <changefreq>, and <priority> elements using the canonical domain https://safarx.in. The index.html has the <link rel=\"sitemap\"> tag, and robots.txt is present with the correct Sitemap directive and wildcard Allow rule. No hallucinated features were detected.",
   "missing_requirements": [],
   "hallucinated_features": [],
-  "confidence": 0.98,
+  "confidence": 0.97,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/index.html",
+    "frontend/public/robots.txt",
+    "frontend/public/sitemap.xml",
     "project_state.json"
   ]
 }

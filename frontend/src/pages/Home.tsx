@@ -40,9 +40,20 @@ const whyChooseUs = [
 
 export default function Home() {
     useSEO({
-        title: "SafarX - Your Trusted Indian Travel Partner | Explore India",
+        title: 'Discover India',
         description:
-            "Discover India with SafarX. Browse curated destinations, travel packages, and plan your perfect trip with our AI-powered itinerary planner. Authentic Indian travel experiences await.",
+            'Discover India with SafarX — curated destinations, handpicked travel packages, AI trip planning, and traveler community stories for your perfect Indian adventure.',
+        ogTitle: 'SafarX — Discover the Soul of Incredible India',
+        ogDescription:
+            'Explore India with SafarX — curated destinations, handpicked travel packages, AI-powered trip planning, and a vibrant community of passionate India explorers.',
+        ogImage: '/assets/generated/hero-himalaya.dim_1920x1080.png',
+        ogUrl: 'https://safarx.in',
+        ogType: 'website',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'SafarX — Discover the Soul of Incredible India',
+        twitterDescription:
+            'Explore India with SafarX — curated destinations, handpicked travel packages, AI-powered trip planning, and a vibrant community of passionate India explorers.',
+        twitterImage: '/assets/generated/hero-himalaya.dim_1920x1080.png',
     });
 
     // Inject TravelAgency JSON-LD structured data

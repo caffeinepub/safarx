@@ -1,20 +1,32 @@
 import { useState } from 'react';
-import { Users, Rss } from 'lucide-react';
+import { Users, Rss, LogIn } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import CommunityFeed from '@/components/CommunityFeed';
 import CommunityProfile from '@/components/CommunityProfile';
 import CommunityAuthModal from '@/components/CommunityAuthModal';
 import { useCommunityUser } from '@/hooks/useQueries';
 import useSEO from '@/hooks/useSEO';
+import { Button } from '@/components/ui/button';
 
 export default function Community() {
     const { session, login, logout } = useCommunityUser();
     const [authModalOpen, setAuthModalOpen] = useState(false);
 
     useSEO({
-        title: 'Travel Community | SafarX India Travelers',
+        title: 'Community',
         description:
-            'Join the SafarX travel community. Share your Indian travel experiences, read traveler stories, get inspiration from fellow explorers, and connect with India enthusiasts worldwide.',
+            'Join the SafarX traveler community — share your India travel stories, discover hidden gems, get inspired by fellow explorers, and connect with passionate India enthusiasts worldwide.',
+        ogTitle: 'SafarX Community — Share Your India Travel Stories',
+        ogDescription:
+            'Join thousands of India travel enthusiasts on SafarX Community. Share your travel stories, discover hidden gems, and connect with fellow explorers across incredible India.',
+        ogImage: '/assets/generated/community-hero.dim_1200x400.png',
+        ogUrl: 'https://safarx.in/community',
+        ogType: 'website',
+        twitterCard: 'summary',
+        twitterTitle: 'SafarX Community — Share Your India Travel Stories',
+        twitterDescription:
+            'Join thousands of India travel enthusiasts on SafarX Community. Share your travel stories, discover hidden gems, and connect with fellow explorers across incredible India.',
+        twitterImage: '/assets/generated/community-hero.dim_1200x400.png',
     });
 
     return (
@@ -71,24 +83,28 @@ export default function Community() {
 
                     <TabsContent value="profile">
                         {session ? (
-                            <CommunityProfile session={session} onLogout={logout} />
+                            <CommunityProfile
+                                session={session}
+                                onLogout={logout}
+                            />
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-20 text-center">
-                                <div className="w-16 h-16 rounded-full bg-saffron-100 flex items-center justify-center mb-4">
+                            <div className="text-center py-16 bg-white rounded-2xl border border-terracotta-100 shadow-sm">
+                                <div className="w-16 h-16 rounded-full bg-saffron-100 flex items-center justify-center mx-auto mb-4">
                                     <Users className="w-8 h-8 text-saffron-500" />
                                 </div>
-                                <h2 className="font-display text-2xl font-bold text-terracotta-800 mb-2">
+                                <h3 className="font-display font-bold text-xl text-terracotta-800 mb-2">
                                     Join the Community
-                                </h2>
-                                <p className="font-body text-terracotta-600 mb-6 max-w-sm">
-                                    Log in or create an account to share your travel stories and manage your profile.
+                                </h3>
+                                <p className="font-body text-terracotta-500 text-sm mb-6 max-w-xs mx-auto">
+                                    Log in or create an account to view your profile and share your travel stories.
                                 </p>
-                                <button
+                                <Button
                                     onClick={() => setAuthModalOpen(true)}
-                                    className="px-8 py-3 bg-saffron-500 hover:bg-saffron-400 text-terracotta-900 font-semibold font-body rounded-full transition-colors shadow-md"
+                                    className="bg-saffron-500 hover:bg-saffron-400 text-terracotta-900 font-body font-semibold rounded-full px-6 gap-2 border-0"
                                 >
-                                    Login / Register
-                                </button>
+                                    <LogIn className="w-4 h-4" />
+                                    Login / Sign Up
+                                </Button>
                             </div>
                         )}
                     </TabsContent>

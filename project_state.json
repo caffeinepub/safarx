@@ -1,24 +1,36 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Web project with SEO keywords and Google Analytics (G-73VJ1TQ3D7) integrated across all pages.",
-  "architectural_notes": [
-    "Google Analytics tag (G-73VJ1TQ3D7) is added immediately after <head> on every page, with no duplicate tags allowed."
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-inject-the-google-analytics-gtag-js-snippet-tracking-id-g-73vj1tq3d7-into-the-application-so-it-loads-on-every-page-place-the-two-script-tags-immediately-after-the-opening-head-tag-in-frontend-index-html-ensure-only-one-google-tag-is-present-do-not-duplicate-it-if-one-already-exists",
-      "title": "Inject the Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) into the application so it loads on every page. Place the two <script> tags immediately after the opening <head> tag in frontend/index.html. Ensure only one Google tag is present — do not duplicate it if one already exists.",
+      "id": "feature-generate-a-static-xml-sitemap-file-at-frontend-public-sitemap-xml-that-lists-all-public-pages-of-the-safarx-site-including-home-destinations-destinations-each-individual-destination-detail-page-destinations-id-for-all-destinations-in-destinations-ts-packages-packages-plan-trip-plan-trip-contact-contact-and-community-community-each-url-entry-should-include-a-loc-with-the-canonical-domain-safarx-in-a-lastmod-date-a-changefreq-value-appropriate-to-the-page-type-and-a-priority-value-reflecting-page-importance-e-g-home-1-0-main-sections-0-8-detail-pages-0-6",
+      "title": "Generate a static XML sitemap file at `frontend/public/sitemap.xml` that lists all public pages of the SafarX site including: Home (/), Destinations (/destinations), each individual destination detail page (/destinations/:id for all destinations in destinations.ts), Packages (/packages), Plan Trip (/plan-trip), Contact (/contact), and Community (/community). Each URL entry should include a <loc> with the canonical domain (safarx.in), a <lastmod> date, a <changefreq> value appropriate to the page type, and a <priority> value reflecting page importance (e.g., Home = 1.0, main sections = 0.8, detail pages = 0.6).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-sitemap-reference-to-frontend-index-html-by-inserting-a-link-rel-sitemap-type-application-xml-title-sitemap-href-sitemap-xml-tag-in-the-document-head-and-also-add-a-robots-txt-file-at-frontend-public-robots-txt-that-allows-all-crawlers-and-points-to-the-sitemap-url-https-safarx-in-sitemap-xml",
+      "title": "Add a sitemap reference to `frontend/index.html` by inserting a `<link rel=\"sitemap\" type=\"application/xml\" title=\"Sitemap\" href=\"/sitemap.xml\" />` tag in the document <head>, and also add a robots.txt file at `frontend/public/robots.txt` that allows all crawlers and points to the sitemap URL (https://safarx.in/sitemap.xml).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "gameProjectType": "none",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add sitemap to help search engines discover and index all pages",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
   "projectName": "SafarX",
   "clarification_mode": "instant",
   "clarification_rounds": 0

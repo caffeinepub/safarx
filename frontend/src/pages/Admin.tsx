@@ -1,540 +1,331 @@
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
-  useGetAllInquiries,
-  useDeleteInquiry,
-  useCommunityStats,
-  useCommunityUserList,
-  clearAdminSessionToken,
-} from '../hooks/useQueries';
-import { useActor } from '../hooks/useActor';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import {
-  Mail,
-  Phone,
-  MapPin,
-  MessageSquare,
-  Clock,
-  Trash2,
-  LogOut,
-  Users,
-  FileText,
-  AlertCircle,
-  Loader2,
-  BarChart3,
-  ShieldCheck,
+    LogOut, Trash2, Mail, Phone, MapPin, MessageSquare, Users, BarChart3,
+    RefreshCw, Loader2, AlertCircle, ChevronDown, ChevronUp, Search, Shield
 } from 'lucide-react';
+import {
+    useGetAllInquiries,
+    useDeleteInquiry,
+    useCommunityStats,
+    useCommunityUserList,
+    getAdminSessionToken,
+    clearAdminSessionToken,
+} from '@/hooks/useQueries';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import useSEO from '@/hooks/useSEO';
 
-function formatDate(timestamp: bigint | number): string {
-  const ms = typeof timestamp === 'bigint' ? Number(timestamp) / 1_000_000 : timestamp;
-  return new Date(ms).toLocaleString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+type SortField = 'destination' | 'name' | 'timestamp';
+type SortDir = 'asc' | 'desc';
 
 export default function Admin() {
-  const navigate = useNavigate();
-  const { isFetching: actorFetching } = useActor();
+    const navigate = useNavigate();
+    const token = getAdminSessionToken();
 
-  // Check localStorage admin session token
-  const [hasAdminSession, setHasAdminSession] = useState(() => {
-    return !!localStorage.getItem('adminSession');
-  });
+    const [search, setSearch] = useState('');
+    const [sortField, setSortField] = useState<SortField>('timestamp');
+    const [sortDir, setSortDir] = useState<SortDir>('desc');
+    const [activeTab, setActiveTab] = useState<'inquiries' | 'community'>('inquiries');
 
-  useEffect(() => {
-    if (!hasAdminSession) {
-      navigate({ to: '/admin/login' });
-    }
-  }, [hasAdminSession, navigate]);
+    useSEO({
+        title: 'Admin Dashboard',
+        description:
+            'SafarX admin dashboard for managing travel inquiries, community posts, platform users, and content moderation. Restricted access for authorized administrators only.',
+    });
 
-  const {
-    data: inquiries,
-    isLoading: inquiriesLoading,
-    error: inquiriesError,
-    refetch: refetchInquiries,
-  } = useGetAllInquiries();
+    // Redirect if no session token
+    useEffect(() => {
+        if (!token) {
+            navigate({ to: '/admin/login' });
+        }
+    }, [token, navigate]);
 
-  const {
-    data: communityStats,
-    isLoading: statsLoading,
-    error: statsError,
-    refetch: refetchStats,
-  } = useCommunityStats();
+    const {
+        data: inquiries = [],
+        isLoading: inquiriesLoading,
+        error: inquiriesError,
+        refetch: refetchInquiries,
+    } = useGetAllInquiries();
 
-  const {
-    data: communityUsers,
-    isLoading: usersLoading,
-    error: usersError,
-    refetch: refetchUsers,
-  } = useCommunityUserList();
+    const {
+        data: communityStats,
+        isLoading: statsLoading,
+    } = useCommunityStats();
 
-  const deleteInquiry = useDeleteInquiry();
+    const {
+        data: communityUsers = [],
+        isLoading: usersLoading,
+    } = useCommunityUserList();
 
-  const handleLogout = () => {
-    clearAdminSessionToken();
-    setHasAdminSession(false);
-    navigate({ to: '/admin/login' });
-  };
+    const deleteInquiry = useDeleteInquiry();
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
-    try {
-      await deleteInquiry.mutateAsync(id);
-    } catch (err) {
-      console.error('Delete failed:', err);
-    }
-  };
+    const handleLogout = () => {
+        clearAdminSessionToken();
+        navigate({ to: '/admin/login' });
+    };
 
-  const handleRefreshAll = () => {
-    refetchInquiries();
-    refetchStats();
-    refetchUsers();
-  };
+    const handleDelete = async (id: string) => {
+        if (!confirm('Delete this inquiry?')) return;
+        try {
+            await deleteInquiry.mutateAsync(id);
+        } catch (err) {
+            console.error('Delete failed:', err);
+        }
+    };
 
-  if (!hasAdminSession) return null;
+    const toggleSort = (field: SortField) => {
+        if (sortField === field) {
+            setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDir('asc');
+        }
+    };
 
-  // Detect session-expired errors
-  const isSessionError = (err: unknown) => {
-    const msg = err instanceof Error ? err.message : String(err);
+    const filtered = inquiries
+        .filter((inq) => {
+            if (!search) return true;
+            const q = search.toLowerCase();
+            return (
+                inq.name.toLowerCase().includes(q) ||
+                inq.email.toLowerCase().includes(q) ||
+                inq.destination.toLowerCase().includes(q) ||
+                inq.message.toLowerCase().includes(q)
+            );
+        })
+        .sort((a, b) => {
+            let cmp = 0;
+            if (sortField === 'destination') cmp = a.destination.localeCompare(b.destination);
+            else if (sortField === 'name') cmp = a.name.localeCompare(b.name);
+            else cmp = Number(a.timestamp) - Number(b.timestamp);
+            return sortDir === 'asc' ? cmp : -cmp;
+        });
+
+    if (!token) return null;
+
+    const SortIcon = ({ field }: { field: SortField }) =>
+        sortField === field ? (
+            sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+        ) : null;
+
     return (
-      msg.toLowerCase().includes('session expired') ||
-      msg.toLowerCase().includes('unauthorized') ||
-      msg.toLowerCase().includes('only admin')
-    );
-  };
-
-  const handleSessionExpired = () => {
-    clearAdminSessionToken();
-    navigate({ to: '/admin/login' });
-  };
-
-  return (
-    <div className="min-h-screen" style={{ background: 'oklch(0.98 0.01 80)' }}>
-      {/* Header */}
-      <header className="text-white shadow-md" style={{ background: 'oklch(0.65 0.18 55)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold font-display">SafarX Admin</h1>
-            <p className="text-sm opacity-80">Dashboard</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {actorFetching ? (
-              <span className="flex items-center gap-2 text-sm opacity-70">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Initializing…
-              </span>
-            ) : (
-              <span className="flex items-center gap-2 text-sm opacity-80">
-                <ShieldCheck className="w-4 h-4" />
-                <span className="hidden sm:block text-xs">Admin Session Active</span>
-              </span>
-            )}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-
-        {/* Initializing notice */}
-        {actorFetching && (
-          <div className="rounded-xl border border-gray-200 bg-white p-5 flex items-center gap-3">
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'oklch(0.65 0.18 55)' }} />
-            <p className="text-sm" style={{ color: 'oklch(0.45 0.05 55)' }}>
-              Connecting to backend…
-            </p>
-          </div>
-        )}
-
-        {/* ── Enquiries Section ── */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg" style={{ background: 'oklch(0.92 0.08 55)' }}>
-              <MessageSquare className="w-5 h-5" style={{ color: 'oklch(0.50 0.18 55)' }} />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold font-display" style={{ color: 'oklch(0.30 0.05 55)' }}>
-                Travel Enquiries
-              </h2>
-              <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>
-                {inquiries
-                  ? `${inquiries.length} enquir${inquiries.length === 1 ? 'y' : 'ies'} received`
-                  : inquiriesLoading
-                  ? 'Loading…'
-                  : 'Enquiries submitted via the contact form'}
-              </p>
-            </div>
-            <button
-              onClick={() => refetchInquiries()}
-              className="ml-auto text-sm px-3 py-1.5 rounded-lg border transition-colors hover:bg-gray-50"
-              style={{ borderColor: 'oklch(0.80 0.05 55)', color: 'oklch(0.45 0.10 55)' }}
-            >
-              Refresh
-            </button>
-          </div>
-
-          {/* Loading skeletons */}
-          {inquiriesLoading && (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                  <div className="flex justify-between mb-3">
-                    <Skeleton className="h-5 w-40" />
-                    <Skeleton className="h-5 w-24" />
-                  </div>
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Error state */}
-          {inquiriesError && !inquiriesLoading && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-5 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-semibold text-red-700">Failed to load enquiries</p>
-                <p className="text-sm text-red-600 mt-1">
-                  {isSessionError(inquiriesError)
-                    ? 'Admin session expired — please log in again.'
-                    : (inquiriesError as Error).message}
-                </p>
-                {isSessionError(inquiriesError) ? (
-                  <button
-                    onClick={handleSessionExpired}
-                    className="mt-2 text-sm text-red-700 font-medium underline hover:no-underline"
-                  >
-                    Go to login
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => refetchInquiries()}
-                    className="mt-2 text-sm text-red-700 underline hover:no-underline"
-                  >
-                    Try again
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!inquiriesLoading && !inquiriesError && inquiries && inquiries.length === 0 && (
-            <div
-              className="text-center py-16 rounded-xl border-2 border-dashed"
-              style={{ borderColor: 'oklch(0.85 0.05 55)' }}
-            >
-              <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p className="font-medium" style={{ color: 'oklch(0.50 0.05 55)' }}>No enquiries yet</p>
-              <p className="text-sm mt-1" style={{ color: 'oklch(0.65 0.03 55)' }}>
-                Enquiries submitted via the contact form will appear here.
-              </p>
-            </div>
-          )}
-
-          {/* Enquiry cards */}
-          {!inquiriesLoading && !inquiriesError && inquiries && inquiries.length > 0 && (
-            <div className="space-y-4">
-              {inquiries.map((inquiry) => (
-                <div
-                  key={inquiry.id}
-                  className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <div>
-                      <h3 className="font-semibold text-lg" style={{ color: 'oklch(0.25 0.05 55)' }}>
-                        {inquiry.name}
-                      </h3>
-                      <div className="flex flex-wrap gap-3 mt-1 text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>
-                        <span className="flex items-center gap-1">
-                          <Mail className="w-3.5 h-3.5" />
-                          {inquiry.email}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Phone className="w-3.5 h-3.5" />
-                          {inquiry.phone || 'N/A'}
-                        </span>
-                      </div>
+        <div className="min-h-screen bg-terracotta-950 text-ivory-100">
+            {/* Header */}
+            <header className="bg-terracotta-900/80 border-b border-terracotta-700/50 backdrop-blur-sm sticky top-0 z-40">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-saffron-500/20 border border-saffron-400/30 flex items-center justify-center">
+                            <Shield className="w-4 h-4 text-saffron-400" />
+                        </div>
+                        <div>
+                            <h1 className="font-display font-bold text-base text-ivory-100">SafarX Admin</h1>
+                            <p className="font-body text-xs text-ivory-400">Dashboard</p>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge
-                        variant="secondary"
-                        className="text-xs"
-                        style={{ background: 'oklch(0.92 0.08 55)', color: 'oklch(0.40 0.15 55)' }}
-                      >
-                        <MapPin className="w-3 h-3 mr-1" />
-                        {inquiry.destination}
-                      </Badge>
-                      <button
-                        onClick={() => handleDelete(inquiry.id)}
-                        disabled={deleteInquiry.isPending}
-                        className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-                        title="Delete enquiry"
-                      >
-                        {deleteInquiry.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <p className="text-sm leading-relaxed mb-3" style={{ color: 'oklch(0.40 0.03 55)' }}>
-                    {inquiry.message}
-                  </p>
-
-                  <div className="flex items-center gap-1 text-xs" style={{ color: 'oklch(0.60 0.03 55)' }}>
-                    <Clock className="w-3 h-3" />
-                    {formatDate(inquiry.timestamp)}
-                  </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLogout}
+                        className="text-ivory-400 hover:text-ivory-100 hover:bg-terracotta-700/50 font-body gap-2"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                    </Button>
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
+            </header>
 
-        {/* ── Community Stats Section ── */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg" style={{ background: 'oklch(0.90 0.06 200)' }}>
-              <BarChart3 className="w-5 h-5" style={{ color: 'oklch(0.40 0.12 200)' }} />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold font-display" style={{ color: 'oklch(0.30 0.05 55)' }}>
-                Community Stats
-              </h2>
-              <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>
-                Overview of registered members and posts
-              </p>
-            </div>
-            <button
-              onClick={handleRefreshAll}
-              className="ml-auto text-sm px-3 py-1.5 rounded-lg border transition-colors hover:bg-gray-50"
-              style={{ borderColor: 'oklch(0.80 0.05 55)', color: 'oklch(0.45 0.10 55)' }}
-            >
-              Refresh
-            </button>
-          </div>
-
-          {/* Stat Cards — loading */}
-          {statsLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <Skeleton className="h-24 rounded-xl" />
-              <Skeleton className="h-24 rounded-xl" />
-            </div>
-          )}
-
-          {/* Stat Cards — error */}
-          {statsError && !statsLoading && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3 mb-6">
-              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-semibold text-red-700">Failed to load community stats</p>
-                <p className="text-sm text-red-600 mt-1">
-                  {isSessionError(statsError)
-                    ? 'Admin session expired — please log in again.'
-                    : (statsError as Error).message}
-                </p>
-                {isSessionError(statsError) ? (
-                  <button
-                    onClick={handleSessionExpired}
-                    className="mt-2 text-sm text-red-700 font-medium underline hover:no-underline"
-                  >
-                    Go to login
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => refetchStats()}
-                    className="mt-2 text-sm text-red-700 underline hover:no-underline"
-                  >
-                    Try again
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Stat Cards — data */}
-          {!statsLoading && !statsError && communityStats && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
-                <div className="p-3 rounded-xl" style={{ background: 'oklch(0.90 0.06 200)' }}>
-                  <Users className="w-6 h-6" style={{ color: 'oklch(0.40 0.12 200)' }} />
-                </div>
-                <div>
-                  <p className="text-3xl font-bold font-display" style={{ color: 'oklch(0.25 0.05 55)' }}>
-                    {Number(communityStats.totalMembers)}
-                  </p>
-                  <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>Total Members</p>
-                </div>
-              </div>
-              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
-                <div className="p-3 rounded-xl" style={{ background: 'oklch(0.92 0.08 55)' }}>
-                  <FileText className="w-6 h-6" style={{ color: 'oklch(0.50 0.18 55)' }} />
-                </div>
-                <div>
-                  <p className="text-3xl font-bold font-display" style={{ color: 'oklch(0.25 0.05 55)' }}>
-                    {Number(communityStats.totalPosts)}
-                  </p>
-                  <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>Total Posts</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* ── Community Users Section ── */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg" style={{ background: 'oklch(0.90 0.06 200)' }}>
-              <Users className="w-5 h-5" style={{ color: 'oklch(0.40 0.12 200)' }} />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold font-display" style={{ color: 'oklch(0.30 0.05 55)' }}>
-                Community Members
-              </h2>
-              <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>
-                {communityUsers
-                  ? `${communityUsers.length} registered member${communityUsers.length === 1 ? '' : 's'}`
-                  : usersLoading
-                  ? 'Loading…'
-                  : 'All registered community users'}
-              </p>
-            </div>
-          </div>
-
-          {/* Loading */}
-          {usersLoading && (
-            <div className="space-y-3">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4">
-                  <Skeleton className="w-10 h-10 rounded-full" />
-                  <div className="flex-1">
-                    <Skeleton className="h-4 w-32 mb-2" />
-                    <Skeleton className="h-3 w-24" />
-                  </div>
-                  <Skeleton className="h-4 w-20" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Error */}
-          {usersError && !usersLoading && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-semibold text-red-700">Failed to load community members</p>
-                <p className="text-sm text-red-600 mt-1">
-                  {isSessionError(usersError)
-                    ? 'Admin session expired — please log in again.'
-                    : (usersError as Error).message}
-                </p>
-                {isSessionError(usersError) ? (
-                  <button
-                    onClick={handleSessionExpired}
-                    className="mt-2 text-sm text-red-700 font-medium underline hover:no-underline"
-                  >
-                    Go to login
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => refetchUsers()}
-                    className="mt-2 text-sm text-red-700 underline hover:no-underline"
-                  >
-                    Try again
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Empty */}
-          {!usersLoading && !usersError && communityUsers && communityUsers.length === 0 && (
-            <div
-              className="text-center py-12 rounded-xl border-2 border-dashed"
-              style={{ borderColor: 'oklch(0.85 0.05 200)' }}
-            >
-              <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p className="font-medium" style={{ color: 'oklch(0.50 0.05 55)' }}>No members yet</p>
-              <p className="text-sm mt-1" style={{ color: 'oklch(0.65 0.03 55)' }}>
-                Community members will appear here once they register.
-              </p>
-            </div>
-          )}
-
-          {/* User list */}
-          {!usersLoading && !usersError && communityUsers && communityUsers.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr style={{ background: 'oklch(0.96 0.02 55)' }}>
-                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
-                        Member
-                      </th>
-                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
-                        Username
-                      </th>
-                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
-                        Joined
-                      </th>
-                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
-                        ID
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {communityUsers.map((user, idx) => (
-                      <tr
-                        key={Number(user.userId)}
-                        className="border-t border-gray-50 hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                              style={{ background: `oklch(${0.55 + (idx % 3) * 0.1} 0.15 ${55 + (idx % 5) * 40})` }}
-                            >
-                              {user.displayName.charAt(0).toUpperCase()}
-                            </div>
-                            <span className="font-medium" style={{ color: 'oklch(0.30 0.05 55)' }}>
-                              {user.displayName}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3 font-mono text-xs" style={{ color: 'oklch(0.50 0.05 55)' }}>
-                          @{user.username}
-                        </td>
-                        <td className="px-5 py-3" style={{ color: 'oklch(0.55 0.03 55)' }}>
-                          {formatDate(user.joinedAt)}
-                        </td>
-                        <td className="px-5 py-3 font-mono text-xs" style={{ color: 'oklch(0.65 0.03 55)' }}>
-                          #{Number(user.userId)}
-                        </td>
-                      </tr>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                    {[
+                        { label: 'Total Inquiries', value: inquiries.length, icon: MessageSquare, color: 'text-saffron-400' },
+                        { label: 'Community Members', value: statsLoading ? '…' : Number(communityStats?.totalMembers ?? 0), icon: Users, color: 'text-teal-400' },
+                        { label: 'Community Posts', value: statsLoading ? '…' : Number(communityStats?.totalPosts ?? 0), icon: BarChart3, color: 'text-terracotta-300' },
+                        { label: 'Destinations', value: '20+', icon: MapPin, color: 'text-ivory-300' },
+                    ].map(({ label, value, icon: Icon, color }) => (
+                        <Card key={label} className="bg-terracotta-800/60 border-terracotta-700/50">
+                            <CardContent className="p-4">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Icon className={`w-4 h-4 ${color}`} />
+                                    <span className="font-body text-xs text-ivory-400">{label}</span>
+                                </div>
+                                <p className="font-display font-bold text-2xl text-ivory-100">{value}</p>
+                            </CardContent>
+                        </Card>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </section>
+                </div>
 
-      </main>
-    </div>
-  );
+                {/* Tabs */}
+                <div className="flex gap-1 mb-6 bg-terracotta-800/40 rounded-xl p-1 w-fit">
+                    {(['inquiries', 'community'] as const).map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`px-5 py-2 rounded-lg font-body text-sm font-medium capitalize transition-colors ${
+                                activeTab === tab
+                                    ? 'bg-saffron-500 text-terracotta-900'
+                                    : 'text-ivory-400 hover:text-ivory-200'
+                            }`}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Inquiries Tab */}
+                {activeTab === 'inquiries' && (
+                    <div>
+                        {/* Toolbar */}
+                        <div className="flex flex-col sm:flex-row gap-3 mb-5">
+                            <div className="relative flex-1 max-w-sm">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ivory-500" />
+                                <Input
+                                    placeholder="Search inquiries…"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-9 bg-terracotta-800/40 border-terracotta-700/50 text-ivory-100 placeholder:text-ivory-500 font-body text-sm"
+                                />
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => refetchInquiries()}
+                                className="text-ivory-400 hover:text-ivory-100 hover:bg-terracotta-700/50 font-body gap-2"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Refresh
+                            </Button>
+                        </div>
+
+                        {inquiriesLoading ? (
+                            <div className="flex items-center justify-center py-20">
+                                <Loader2 className="w-6 h-6 animate-spin text-saffron-400" />
+                            </div>
+                        ) : inquiriesError ? (
+                            <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-700/30">
+                                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                                <div>
+                                    <p className="font-body text-sm text-red-300 font-medium">Failed to load inquiries</p>
+                                    <p className="font-body text-xs text-red-400 mt-0.5">
+                                        Admin session expired — please log in again.
+                                    </p>
+                                </div>
+                            </div>
+                        ) : filtered.length === 0 ? (
+                            <div className="text-center py-20">
+                                <MessageSquare className="w-10 h-10 text-ivory-600 mx-auto mb-3" />
+                                <p className="font-body text-ivory-400">
+                                    {search ? 'No inquiries match your search.' : 'No inquiries yet.'}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {/* Sort bar */}
+                                <div className="hidden sm:flex items-center gap-4 px-4 py-2 text-xs font-body text-ivory-500 uppercase tracking-wider">
+                                    <button onClick={() => toggleSort('name')} className="flex items-center gap-1 hover:text-ivory-300 transition-colors w-32">
+                                        Name <SortIcon field="name" />
+                                    </button>
+                                    <button onClick={() => toggleSort('destination')} className="flex items-center gap-1 hover:text-ivory-300 transition-colors w-32">
+                                        Destination <SortIcon field="destination" />
+                                    </button>
+                                    <button onClick={() => toggleSort('timestamp')} className="flex items-center gap-1 hover:text-ivory-300 transition-colors ml-auto">
+                                        Date <SortIcon field="timestamp" />
+                                    </button>
+                                </div>
+
+                                {filtered.map((inq) => (
+                                    <Card key={inq.id} className="bg-terracotta-800/40 border-terracotta-700/40 hover:border-terracotta-600/60 transition-colors">
+                                        <CardContent className="p-5">
+                                            <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                                                <div className="flex-1 min-w-0 space-y-2">
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className="font-display font-semibold text-ivory-100">{inq.name}</span>
+                                                        <Badge className="bg-saffron-500/20 text-saffron-300 border-saffron-500/30 font-body text-xs">
+                                                            <MapPin className="w-3 h-3 mr-1" />
+                                                            {inq.destination}
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                                        <span className="font-body text-xs text-ivory-400 flex items-center gap-1">
+                                                            <Mail className="w-3 h-3" /> {inq.email}
+                                                        </span>
+                                                        {inq.phone && (
+                                                            <span className="font-body text-xs text-ivory-400 flex items-center gap-1">
+                                                                <Phone className="w-3 h-3" /> {inq.phone}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="font-body text-sm text-ivory-300 leading-relaxed line-clamp-2">
+                                                        {inq.message}
+                                                    </p>
+                                                    <p className="font-body text-xs text-ivory-500">
+                                                        {new Date(Number(inq.timestamp) / 1_000_000).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDelete(inq.id)}
+                                                    disabled={deleteInquiry.isPending}
+                                                    className="text-red-400 hover:text-red-300 hover:bg-red-900/20 flex-shrink-0"
+                                                >
+                                                    {deleteInquiry.isPending ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <Trash2 className="w-4 h-4" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Community Tab */}
+                {activeTab === 'community' && (
+                    <div>
+                        {usersLoading ? (
+                            <div className="flex items-center justify-center py-20">
+                                <Loader2 className="w-6 h-6 animate-spin text-saffron-400" />
+                            </div>
+                        ) : communityUsers.length === 0 ? (
+                            <div className="text-center py-20">
+                                <Users className="w-10 h-10 text-ivory-600 mx-auto mb-3" />
+                                <p className="font-body text-ivory-400">No community members yet.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {communityUsers.map((user) => (
+                                    <Card key={String(user.userId)} className="bg-terracotta-800/40 border-terracotta-700/40">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-full bg-saffron-500/20 border border-saffron-400/30 flex items-center justify-center flex-shrink-0">
+                                                    <span className="font-display font-bold text-saffron-400 text-sm">
+                                                        {user.displayName.charAt(0).toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-body font-semibold text-ivory-100 text-sm">{user.displayName}</p>
+                                                    <p className="font-body text-xs text-ivory-400">@{user.username}</p>
+                                                </div>
+                                                <p className="font-body text-xs text-ivory-500 hidden sm:block">
+                                                    Joined {new Date(Number(user.joinedAt) / 1_000_000).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </main>
+        </div>
+    );
 }
