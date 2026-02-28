@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Compass, Heart, MapPin, Mail, Phone } from 'lucide-react';
-import { SiInstagram, SiFacebook, SiX, SiYoutube } from 'react-icons/si';
+import { SiInstagram, SiFacebook, SiX, SiYoutube, SiLinkedin } from 'react-icons/si';
 
 const regions = ['North India', 'South India', 'East India', 'West India', 'Northeast India'];
 const quickLinks = [
@@ -35,16 +35,18 @@ export default function Footer() {
                         </p>
                         <div className="flex gap-3">
                             {[
-                                { Icon: SiInstagram, href: 'https://www.instagram.com/SafarX.in' },
-                                { Icon: SiFacebook, href: '#' },
-                                { Icon: SiX, href: '#' },
-                                { Icon: SiYoutube, href: '#' },
-                            ].map(({ Icon, href }, i) => (
+                                { Icon: SiInstagram, href: 'https://www.instagram.com/travel_safarx/', label: 'Instagram' },
+                                { Icon: SiLinkedin, href: 'https://www.linkedin.com/company/safarx-in/?viewAsMember=true', label: 'LinkedIn' },
+                                { Icon: SiFacebook, href: '#', label: 'Facebook' },
+                                { Icon: SiX, href: '#', label: 'X (Twitter)' },
+                                { Icon: SiYoutube, href: '#', label: 'YouTube' },
+                            ].map(({ Icon, href, label }, i) => (
                                 <a
                                     key={i}
                                     href={href}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    aria-label={label}
                                     className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-saffron-500 hover:text-terracotta-900 text-ivory-300 transition-all duration-200"
                                 >
                                     <Icon className="w-4 h-4" />
@@ -119,12 +121,23 @@ export default function Footer() {
                             <li className="flex items-start gap-2.5">
                                 <SiInstagram className="w-4 h-4 text-saffron-400 mt-0.5 flex-shrink-0" />
                                 <a
-                                    href="https://www.instagram.com/SafarX.in"
+                                    href="https://www.instagram.com/travel_safarx/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="font-body text-sm text-ivory-300 hover:text-saffron-400 transition-colors"
                                 >
-                                    @SafarX.in
+                                    @travel_safarx
+                                </a>
+                            </li>
+                            <li className="flex items-start gap-2.5">
+                                <SiLinkedin className="w-4 h-4 text-saffron-400 mt-0.5 flex-shrink-0" />
+                                <a
+                                    href="https://www.linkedin.com/company/safarx-in/?viewAsMember=true"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-body text-sm text-ivory-300 hover:text-saffron-400 transition-colors"
+                                >
+                                    SafarX on LinkedIn
                                 </a>
                             </li>
                         </ul>

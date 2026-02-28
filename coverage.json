@@ -1,37 +1,24 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T21:58:00.261Z",
+  "generatedAt": "2026-02-28T22:15:43.416Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Generate a static XML sitemap file at `frontend/public/sitemap.xml` that lists all public pages of the SafarX site including: Home (/), Destinations (/destinations), each individual destination detail page (/destinations/:id for all destinations in destinations.ts), Packages (/packages), Plan Trip (/plan-trip), Contact (/contact), and Community (/community). Each URL entry should include a <loc> with the canonical domain (safarx.in), a <lastmod> date, a <changefreq> value appropriate to the page type, and a <priority> value reflecting page importance (e.g., Home = 1.0, main sections = 0.8, detail pages = 0.6).",
+        "summary": "Add a LinkedIn icon link to the Footer component pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, placed alongside the existing Instagram social media icon/link.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/sitemap.xml"
+          "frontend/src/components/Footer.tsx"
         ],
         "matchedFiles": [
-          "frontend/public/sitemap.xml"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Add a sitemap reference to `frontend/index.html` by inserting a `<link rel=\"sitemap\" type=\"application/xml\" title=\"Sitemap\" href=\"/sitemap.xml\" />` tag in the document <head>, and also add a robots.txt file at `frontend/public/robots.txt` that allows all crawlers and points to the sitemap URL (https://safarx.in/sitemap.xml).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/index.html",
-          "frontend/public/robots.txt"
-        ],
-        "matchedFiles": [
-          "frontend/index.html",
-          "frontend/public/robots.txt"
+          "frontend/src/components/Footer.tsx"
         ]
       }
     ]
@@ -41,9 +28,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
-    "frontend/public/robots.txt",
-    "frontend/public/sitemap.xml",
+    "frontend/src/components/Footer.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

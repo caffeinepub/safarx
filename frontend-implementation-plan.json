@@ -1,44 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add XML sitemap for search engine indexing",
+  "title": "Add LinkedIn social link to footer",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Generate a static XML sitemap file listing all public pages with SEO metadata",
+      "summary": "Add a LinkedIn icon link to the Footer component pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, placed alongside the existing Instagram social media icon/link",
       "acceptanceCriteria": [
-        "sitemap.xml is present in frontend/public/ and is served at /sitemap.xml",
-        "All public routes are listed including all destination detail pages derived from the static destinations data",
-        "Each <url> entry contains <loc>, <lastmod>, <changefreq>, and <priority> elements",
-        "The <loc> values use the canonical domain https://safarx.in",
-        "The sitemap is valid XML and passes standard sitemap schema validation"
+        "A LinkedIn icon is visible in the footer's social media links section",
+        "Clicking the LinkedIn icon opens https://www.linkedin.com/company/safarx-in/?viewAsMember=true in a new tab",
+        "The LinkedIn icon is styled consistently with the existing Instagram icon",
+        "The link has rel='noopener noreferrer' for security"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/sitemap.xml",
-          "operation": "create",
-          "description": "Create a static XML sitemap file that lists all public pages of SafarX. Include: Home (/) with priority 1.0 and weekly changefreq; Destinations (/destinations) with priority 0.8 and weekly changefreq; all individual destination detail pages (/destinations/:id) derived from the destinations array in frontend/src/data/destinations.ts with priority 0.6 and monthly changefreq; Packages (/packages) with priority 0.8 and weekly changefreq; Plan Trip (/plan-trip) with priority 0.8 and weekly changefreq; Contact (/contact) with priority 0.7 and monthly changefreq; and Community (/community) with priority 0.8 and weekly changefreq. Each <url> entry must contain <loc> with the canonical domain https://safarx.in, <lastmod> set to the current date in YYYY-MM-DD format, <changefreq> as specified, and <priority> as specified. The file must be valid XML conforming to the sitemap protocol schema with proper XML declaration and urlset namespace."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Add sitemap reference to HTML head and create robots.txt for crawler directives",
-      "acceptanceCriteria": [
-        "frontend/index.html contains a <link rel=\"sitemap\"> tag pointing to /sitemap.xml",
-        "frontend/public/robots.txt exists and contains a Sitemap directive pointing to https://safarx.in/sitemap.xml",
-        "robots.txt allows all user-agents to crawl the site"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/index.html",
+          "path": "frontend/src/components/Footer.tsx",
           "operation": "modify",
-          "description": "Add a <link rel=\"sitemap\" type=\"application/xml\" title=\"Sitemap\" href=\"/sitemap.xml\" /> tag inside the document <head> section, placing it near the existing canonical link tag for consistency. This provides a discoverable reference to the sitemap for search engine crawlers."
-        },
-        {
-          "path": "frontend/public/robots.txt",
-          "operation": "create",
-          "description": "Create a robots.txt file that allows all user-agents to crawl the entire site and points to the sitemap. Content should include: 'User-agent: *' (allow all bots), 'Allow: /' (allow crawling all paths), and 'Sitemap: https://safarx.in/sitemap.xml' (absolute URL to the sitemap)."
+          "description": "Add a LinkedIn social media link alongside the existing Instagram link in the footer's social media section. Import the Linkedin icon from lucide-react and add a new anchor element with href='https://www.linkedin.com/company/safarx-in/?viewAsMember=true', target='_blank', rel='noopener noreferrer', styled consistently with the Instagram link including hover effects and sizing."
         }
       ]
     }

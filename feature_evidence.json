@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-generate-a-static-xml-sitemap-file-at-frontend-public-sitemap-xml-that-lists-all-public-pages-of-the-safarx-site-including-home-destinations-destinations-each-individual-destination-detail-page-destinations-id-for-all-destinations-in-destinations-ts-packages-packages-plan-trip-plan-trip-contact-contact-and-community-community-each-url-entry-should-include-a-loc-with-the-canonical-domain-safarx-in-a-lastmod-date-a-changefreq-value-appropriate-to-the-page-type-and-a-priority-value-reflecting-page-importance-e-g-home-1-0-main-sections-0-8-detail-pages-0-6",
-      "featureTitle": "Generate a static XML sitemap file at `frontend/public/sitemap.xml` that lists all public pages of the SafarX site including: Home (/), Destinations (/destinations), each individual destination detail page (/destinations/:id for all destinations in destinations.ts), Packages (/packages), Plan Trip (/plan-trip), Contact (/contact), and Community (/community). Each URL entry should include a <loc> with the canonical domain (safarx.in), a <lastmod> date, a <changefreq> value appropriate to the page type, and a <priority> value reflecting page importance (e.g., Home = 1.0, main sections = 0.8, detail pages = 0.6).",
+      "featureId": "feature-add-a-linkedin-icon-link-to-the-footer-component-pointing-to-https-www-linkedin-com-company-safarx-in-viewasmember-true-placed-alongside-the-existing-instagram-social-media-icon-link",
+      "featureTitle": "Add a LinkedIn icon link to the Footer component pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, placed alongside the existing Instagram social media icon/link.",
       "files": [
-        "frontend/public/sitemap.xml"
+        "frontend/src/components/Footer.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -18,27 +18,6 @@
       ],
       "testIds": [
         "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-sitemap-reference-to-frontend-index-html-by-inserting-a-link-rel-sitemap-type-application-xml-title-sitemap-href-sitemap-xml-tag-in-the-document-head-and-also-add-a-robots-txt-file-at-frontend-public-robots-txt-that-allows-all-crawlers-and-points-to-the-sitemap-url-https-safarx-in-sitemap-xml",
-      "featureTitle": "Add a sitemap reference to `frontend/index.html` by inserting a `<link rel=\"sitemap\" type=\"application/xml\" title=\"Sitemap\" href=\"/sitemap.xml\" />` tag in the document <head>, and also add a robots.txt file at `frontend/public/robots.txt` that allows all crawlers and points to the sitemap URL (https://safarx.in/sitemap.xml).",
-      "files": [
-        "frontend/index.html",
-        "frontend/public/robots.txt"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
       ],
       "confidence": "high"
     }
