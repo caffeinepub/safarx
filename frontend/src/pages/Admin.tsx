@@ -5,8 +5,9 @@ import {
   useDeleteInquiry,
   useCommunityStats,
   useCommunityUserList,
+  clearAdminSessionToken,
 } from '../hooks/useQueries';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useActor } from '../hooks/useActor';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -21,9 +22,8 @@ import {
   FileText,
   AlertCircle,
   Loader2,
-  User,
   BarChart3,
-  ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react';
 
 function formatDate(timestamp: bigint | number): string {
@@ -39,11 +39,9 @@ function formatDate(timestamp: bigint | number): string {
 
 export default function Admin() {
   const navigate = useNavigate();
-  const { identity, clear, loginStatus, login } = useInternetIdentity();
-  const isAuthenticated = !!identity;
-  const isLoggingIn = loginStatus === 'logging-in';
+  const { isFetching: actorFetching } = useActor();
 
-  // Check localStorage admin session
+  // Check localStorage admin session token
   const [hasAdminSession, setHasAdminSession] = useState(() => {
     return !!localStorage.getItem('adminSession');
   });
@@ -65,18 +63,20 @@ export default function Admin() {
     data: communityStats,
     isLoading: statsLoading,
     error: statsError,
+    refetch: refetchStats,
   } = useCommunityStats();
 
   const {
     data: communityUsers,
     isLoading: usersLoading,
     error: usersError,
+    refetch: refetchUsers,
   } = useCommunityUserList();
 
   const deleteInquiry = useDeleteInquiry();
 
   const handleLogout = () => {
-    localStorage.removeItem('adminSession');
+    clearAdminSessionToken();
     setHasAdminSession(false);
     navigate({ to: '/admin/login' });
   };
@@ -90,41 +90,48 @@ export default function Admin() {
     }
   };
 
+  const handleRefreshAll = () => {
+    refetchInquiries();
+    refetchStats();
+    refetchUsers();
+  };
+
   if (!hasAdminSession) return null;
 
-  // Determine if admin calls are failing due to auth
-  const isAuthError = (err: unknown) => {
+  // Detect session-expired errors
+  const isSessionError = (err: unknown) => {
     const msg = err instanceof Error ? err.message : String(err);
-    return msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('only admin');
+    return (
+      msg.toLowerCase().includes('session expired') ||
+      msg.toLowerCase().includes('unauthorized') ||
+      msg.toLowerCase().includes('only admin')
+    );
+  };
+
+  const handleSessionExpired = () => {
+    clearAdminSessionToken();
+    navigate({ to: '/admin/login' });
   };
 
   return (
-    <div className="min-h-screen bg-ivory-50" style={{ background: 'oklch(0.98 0.01 80)' }}>
+    <div className="min-h-screen" style={{ background: 'oklch(0.98 0.01 80)' }}>
       {/* Header */}
-      <header className="bg-saffron-600 text-white shadow-md" style={{ background: 'oklch(0.65 0.18 55)' }}>
+      <header className="text-white shadow-md" style={{ background: 'oklch(0.65 0.18 55)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold font-display">SafarX Admin</h1>
             <p className="text-sm opacity-80">Dashboard</p>
           </div>
           <div className="flex items-center gap-3">
-            {!isAuthenticated ? (
-              <button
-                onClick={login}
-                disabled={isLoggingIn}
-                className="flex items-center gap-2 bg-white text-saffron-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-colors disabled:opacity-60"
-                style={{ color: 'oklch(0.50 0.18 55)' }}
-              >
-                {isLoggingIn ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ShieldAlert className="w-4 h-4" />
-                )}
-                {isLoggingIn ? 'Connecting…' : 'Connect Identity'}
-              </button>
+            {actorFetching ? (
+              <span className="flex items-center gap-2 text-sm opacity-70">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Initializing…
+              </span>
             ) : (
-              <span className="text-sm opacity-80 hidden sm:block">
-                {identity.getPrincipal().toString().slice(0, 12)}…
+              <span className="flex items-center gap-2 text-sm opacity-80">
+                <ShieldCheck className="w-4 h-4" />
+                <span className="hidden sm:block text-xs">Admin Session Active</span>
               </span>
             )}
             <button
@@ -140,17 +147,13 @@ export default function Admin() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
-        {/* Identity Notice */}
-        {!isAuthenticated && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-            <div>
-              <p className="font-semibold text-amber-800">Internet Identity Required</p>
-              <p className="text-sm text-amber-700 mt-1">
-                To load enquiries and community stats, please click <strong>Connect Identity</strong> above.
-                This authenticates you as the admin on the Internet Computer.
-              </p>
-            </div>
+        {/* Initializing notice */}
+        {actorFetching && (
+          <div className="rounded-xl border border-gray-200 bg-white p-5 flex items-center gap-3">
+            <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'oklch(0.65 0.18 55)' }} />
+            <p className="text-sm" style={{ color: 'oklch(0.45 0.05 55)' }}>
+              Connecting to backend…
+            </p>
           </div>
         )}
 
@@ -165,20 +168,23 @@ export default function Admin() {
                 Travel Enquiries
               </h2>
               <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>
-                {inquiries ? `${inquiries.length} enquir${inquiries.length === 1 ? 'y' : 'ies'} received` : 'Loading…'}
+                {inquiries
+                  ? `${inquiries.length} enquir${inquiries.length === 1 ? 'y' : 'ies'} received`
+                  : inquiriesLoading
+                  ? 'Loading…'
+                  : 'Enquiries submitted via the contact form'}
               </p>
             </div>
-            {isAuthenticated && (
-              <button
-                onClick={() => refetchInquiries()}
-                className="ml-auto text-sm px-3 py-1.5 rounded-lg border transition-colors hover:bg-gray-50"
-                style={{ borderColor: 'oklch(0.80 0.05 55)', color: 'oklch(0.45 0.10 55)' }}
-              >
-                Refresh
-              </button>
-            )}
+            <button
+              onClick={() => refetchInquiries()}
+              className="ml-auto text-sm px-3 py-1.5 rounded-lg border transition-colors hover:bg-gray-50"
+              style={{ borderColor: 'oklch(0.80 0.05 55)', color: 'oklch(0.45 0.10 55)' }}
+            >
+              Refresh
+            </button>
           </div>
 
+          {/* Loading skeletons */}
           {inquiriesLoading && (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -194,22 +200,42 @@ export default function Admin() {
             </div>
           )}
 
-          {inquiriesError && (
+          {/* Error state */}
+          {inquiriesError && !inquiriesLoading && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-5 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
               <div>
                 <p className="font-semibold text-red-700">Failed to load enquiries</p>
                 <p className="text-sm text-red-600 mt-1">
-                  {isAuthError(inquiriesError)
-                    ? 'You need to connect your Internet Identity (click "Connect Identity" above) to view enquiries.'
+                  {isSessionError(inquiriesError)
+                    ? 'Admin session expired — please log in again.'
                     : (inquiriesError as Error).message}
                 </p>
+                {isSessionError(inquiriesError) ? (
+                  <button
+                    onClick={handleSessionExpired}
+                    className="mt-2 text-sm text-red-700 font-medium underline hover:no-underline"
+                  >
+                    Go to login
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => refetchInquiries()}
+                    className="mt-2 text-sm text-red-700 underline hover:no-underline"
+                  >
+                    Try again
+                  </button>
+                )}
               </div>
             </div>
           )}
 
+          {/* Empty state */}
           {!inquiriesLoading && !inquiriesError && inquiries && inquiries.length === 0 && (
-            <div className="text-center py-16 rounded-xl border-2 border-dashed" style={{ borderColor: 'oklch(0.85 0.05 55)' }}>
+            <div
+              className="text-center py-16 rounded-xl border-2 border-dashed"
+              style={{ borderColor: 'oklch(0.85 0.05 55)' }}
+            >
               <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p className="font-medium" style={{ color: 'oklch(0.50 0.05 55)' }}>No enquiries yet</p>
               <p className="text-sm mt-1" style={{ color: 'oklch(0.65 0.03 55)' }}>
@@ -218,6 +244,7 @@ export default function Admin() {
             </div>
           )}
 
+          {/* Enquiry cards */}
           {!inquiriesLoading && !inquiriesError && inquiries && inquiries.length > 0 && (
             <div className="space-y-4">
               {inquiries.map((inquiry) => (
@@ -293,9 +320,16 @@ export default function Admin() {
                 Overview of registered members and posts
               </p>
             </div>
+            <button
+              onClick={handleRefreshAll}
+              className="ml-auto text-sm px-3 py-1.5 rounded-lg border transition-colors hover:bg-gray-50"
+              style={{ borderColor: 'oklch(0.80 0.05 55)', color: 'oklch(0.45 0.10 55)' }}
+            >
+              Refresh
+            </button>
           </div>
 
-          {/* Stat Cards */}
+          {/* Stat Cards — loading */}
           {statsLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <Skeleton className="h-24 rounded-xl" />
@@ -303,149 +337,193 @@ export default function Admin() {
             </div>
           )}
 
-          {statsError && (
+          {/* Stat Cards — error */}
+          {statsError && !statsLoading && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3 mb-6">
               <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
               <div>
                 <p className="font-semibold text-red-700">Failed to load community stats</p>
                 <p className="text-sm text-red-600 mt-1">
-                  {isAuthError(statsError)
-                    ? 'Connect your Internet Identity above to view community stats.'
+                  {isSessionError(statsError)
+                    ? 'Admin session expired — please log in again.'
                     : (statsError as Error).message}
                 </p>
+                {isSessionError(statsError) ? (
+                  <button
+                    onClick={handleSessionExpired}
+                    className="mt-2 text-sm text-red-700 font-medium underline hover:no-underline"
+                  >
+                    Go to login
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => refetchStats()}
+                    className="mt-2 text-sm text-red-700 underline hover:no-underline"
+                  >
+                    Try again
+                  </button>
+                )}
               </div>
             </div>
           )}
 
+          {/* Stat Cards — data */}
           {!statsLoading && !statsError && communityStats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div
-                className="rounded-xl p-5 flex items-center gap-4 shadow-sm"
-                style={{ background: 'oklch(0.96 0.04 55)', border: '1px solid oklch(0.88 0.08 55)' }}
-              >
-                <div
-                  className="p-3 rounded-full"
-                  style={{ background: 'oklch(0.88 0.10 55)' }}
-                >
-                  <Users className="w-6 h-6" style={{ color: 'oklch(0.45 0.18 55)' }} />
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+                <div className="p-3 rounded-xl" style={{ background: 'oklch(0.90 0.06 200)' }}>
+                  <Users className="w-6 h-6" style={{ color: 'oklch(0.40 0.12 200)' }} />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold font-display" style={{ color: 'oklch(0.35 0.15 55)' }}>
-                    {Number(communityStats.totalMembers).toLocaleString()}
+                  <p className="text-3xl font-bold font-display" style={{ color: 'oklch(0.25 0.05 55)' }}>
+                    {Number(communityStats.totalMembers)}
                   </p>
-                  <p className="text-sm font-medium" style={{ color: 'oklch(0.50 0.08 55)' }}>
-                    Registered Members
-                  </p>
+                  <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>Total Members</p>
                 </div>
               </div>
-
-              <div
-                className="rounded-xl p-5 flex items-center gap-4 shadow-sm"
-                style={{ background: 'oklch(0.96 0.04 200)', border: '1px solid oklch(0.88 0.06 200)' }}
-              >
-                <div
-                  className="p-3 rounded-full"
-                  style={{ background: 'oklch(0.88 0.08 200)' }}
-                >
-                  <FileText className="w-6 h-6" style={{ color: 'oklch(0.40 0.14 200)' }} />
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+                <div className="p-3 rounded-xl" style={{ background: 'oklch(0.92 0.08 55)' }}>
+                  <FileText className="w-6 h-6" style={{ color: 'oklch(0.50 0.18 55)' }} />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold font-display" style={{ color: 'oklch(0.30 0.12 200)' }}>
-                    {Number(communityStats.totalPosts).toLocaleString()}
+                  <p className="text-3xl font-bold font-display" style={{ color: 'oklch(0.25 0.05 55)' }}>
+                    {Number(communityStats.totalPosts)}
                   </p>
-                  <p className="text-sm font-medium" style={{ color: 'oklch(0.45 0.08 200)' }}>
-                    Community Posts
-                  </p>
+                  <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>Total Posts</p>
                 </div>
               </div>
             </div>
           )}
+        </section>
 
-          {/* User List */}
-          <div className="flex items-center gap-2 mb-4">
-            <User className="w-4 h-4" style={{ color: 'oklch(0.50 0.10 55)' }} />
-            <h3 className="font-semibold" style={{ color: 'oklch(0.30 0.05 55)' }}>
-              Registered Users
-            </h3>
+        {/* ── Community Users Section ── */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 rounded-lg" style={{ background: 'oklch(0.90 0.06 200)' }}>
+              <Users className="w-5 h-5" style={{ color: 'oklch(0.40 0.12 200)' }} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold font-display" style={{ color: 'oklch(0.30 0.05 55)' }}>
+                Community Members
+              </h2>
+              <p className="text-sm" style={{ color: 'oklch(0.50 0.05 55)' }}>
+                {communityUsers
+                  ? `${communityUsers.length} registered member${communityUsers.length === 1 ? '' : 's'}`
+                  : usersLoading
+                  ? 'Loading…'
+                  : 'All registered community users'}
+              </p>
+            </div>
           </div>
 
+          {/* Loading */}
           {usersLoading && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white rounded-lg p-3 flex items-center gap-3">
-                  <Skeleton className="h-9 w-9 rounded-full" />
+                <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4">
+                  <Skeleton className="w-10 h-10 rounded-full" />
                   <div className="flex-1">
-                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-4 w-32 mb-2" />
                     <Skeleton className="h-3 w-24" />
                   </div>
-                  <Skeleton className="h-3 w-28" />
+                  <Skeleton className="h-4 w-20" />
                 </div>
               ))}
             </div>
           )}
 
-          {usersError && (
+          {/* Error */}
+          {usersError && !usersLoading && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
               <div>
-                <p className="font-semibold text-red-700">Failed to load user list</p>
+                <p className="font-semibold text-red-700">Failed to load community members</p>
                 <p className="text-sm text-red-600 mt-1">
-                  {isAuthError(usersError)
-                    ? 'Connect your Internet Identity above to view the user list.'
+                  {isSessionError(usersError)
+                    ? 'Admin session expired — please log in again.'
                     : (usersError as Error).message}
                 </p>
+                {isSessionError(usersError) ? (
+                  <button
+                    onClick={handleSessionExpired}
+                    className="mt-2 text-sm text-red-700 font-medium underline hover:no-underline"
+                  >
+                    Go to login
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => refetchUsers()}
+                    className="mt-2 text-sm text-red-700 underline hover:no-underline"
+                  >
+                    Try again
+                  </button>
+                )}
               </div>
             </div>
           )}
 
+          {/* Empty */}
           {!usersLoading && !usersError && communityUsers && communityUsers.length === 0 && (
-            <div className="text-center py-10 rounded-xl border-2 border-dashed" style={{ borderColor: 'oklch(0.85 0.05 55)' }}>
-              <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm" style={{ color: 'oklch(0.55 0.05 55)' }}>No community members yet.</p>
+            <div
+              className="text-center py-12 rounded-xl border-2 border-dashed"
+              style={{ borderColor: 'oklch(0.85 0.05 200)' }}
+            >
+              <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p className="font-medium" style={{ color: 'oklch(0.50 0.05 55)' }}>No members yet</p>
+              <p className="text-sm mt-1" style={{ color: 'oklch(0.65 0.03 55)' }}>
+                Community members will appear here once they register.
+              </p>
             </div>
           )}
 
+          {/* User list */}
           {!usersLoading && !usersError && communityUsers && communityUsers.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr style={{ background: 'oklch(0.96 0.03 55)' }}>
-                      <th className="text-left px-4 py-3 font-semibold" style={{ color: 'oklch(0.40 0.10 55)' }}>
-                        Display Name
+                    <tr style={{ background: 'oklch(0.96 0.02 55)' }}>
+                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
+                        Member
                       </th>
-                      <th className="text-left px-4 py-3 font-semibold" style={{ color: 'oklch(0.40 0.10 55)' }}>
+                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
                         Username
                       </th>
-                      <th className="text-left px-4 py-3 font-semibold hidden sm:table-cell" style={{ color: 'oklch(0.40 0.10 55)' }}>
+                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
                         Joined
+                      </th>
+                      <th className="text-left px-5 py-3 font-semibold" style={{ color: 'oklch(0.40 0.08 55)' }}>
+                        ID
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {communityUsers.map((user, idx) => (
                       <tr
-                        key={user.userId.toString()}
+                        key={Number(user.userId)}
                         className="border-t border-gray-50 hover:bg-gray-50 transition-colors"
                       >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-3">
                             <div
                               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                              style={{ background: `oklch(${0.55 + (idx % 3) * 0.08} 0.15 ${55 + (idx % 5) * 40})` }}
+                              style={{ background: `oklch(${0.55 + (idx % 3) * 0.1} 0.15 ${55 + (idx % 5) * 40})` }}
                             >
                               {user.displayName.charAt(0).toUpperCase()}
                             </div>
-                            <span className="font-medium" style={{ color: 'oklch(0.25 0.05 55)' }}>
+                            <span className="font-medium" style={{ color: 'oklch(0.30 0.05 55)' }}>
                               {user.displayName}
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-3" style={{ color: 'oklch(0.50 0.05 55)' }}>
+                        <td className="px-5 py-3 font-mono text-xs" style={{ color: 'oklch(0.50 0.05 55)' }}>
                           @{user.username}
                         </td>
-                        <td className="px-4 py-3 hidden sm:table-cell text-xs" style={{ color: 'oklch(0.60 0.03 55)' }}>
+                        <td className="px-5 py-3" style={{ color: 'oklch(0.55 0.03 55)' }}>
                           {formatDate(user.joinedAt)}
+                        </td>
+                        <td className="px-5 py-3 font-mono text-xs" style={{ color: 'oklch(0.65 0.03 55)' }}>
+                          #{Number(user.userId)}
                         </td>
                       </tr>
                     ))}
@@ -455,6 +533,7 @@ export default function Admin() {
             </div>
           )}
         </section>
+
       </main>
     </div>
   );

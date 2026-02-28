@@ -1,11 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Connect Identity / Google Sign-In button on the Community page being hidden behind the fixed site header.
+**Goal:** Fix admin principal storage and session token verification in the backend, and update the frontend to pass session tokens for all admin-gated calls.
 
 **Planned changes:**
-- Increase the z-index of the CommunityAuthModal dialog/panel and its overlay so it renders above the fixed header
-- Ensure the modal container has sufficient top offset or padding so the button is not obscured by the navigation bar
-- Verify the trigger button and overlay are fully visible and clickable on both desktop and mobile viewports
+- In `backend/main.mo`, store `Principal.toText(msg.caller)` in a stable variable when `registerAdmin` is called.
+- Update `loginAdmin` to return `{ok: true; token: <sessionToken>}` on success and `{ok: false; token: ""}` on failure.
+- Add dual-mode guards to all admin-gated functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) that validate either a session token parameter or the caller principal against the stored admin principal.
+- Remove any checks against uninitialised or hardcoded principal values.
+- In `frontend/src/hooks/useQueries.ts` and `frontend/src/pages/Admin.tsx`, update all admin-gated actor calls to pass the session token from localStorage as a parameter.
+- Replace the "Your identity does not have admin permissions…" error message with "Admin session expired — please log in again." and redirect to `/admin/login` when the token is missing or invalid.
 
-**User-visible outcome:** Users can see and click the Google Sign-In / Connect Identity button on the Community page without it being covered by the site header.
+**User-visible outcome:** After logging in as admin, the dashboard correctly loads enquiries, community stats, and user lists, and deleting an enquiry works without any permissions error. If the session expires, the admin sees a friendly message and is redirected to the login page.

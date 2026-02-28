@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { Eye, EyeOff, Lock, User, ShieldCheck, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { useIsAdminRegistered, useRegisterAdmin, useLoginAdmin } from '@/hooks/useQueries';
+import { Eye, EyeOff, Lock, User, ShieldCheck, Loader2, AlertCircle, CheckCircle2, ShieldAlert, KeyRound } from 'lucide-react';
+import { useRegisterAdmin, useLoginAdmin, getAdminSessionToken } from '@/hooks/useQueries';
+import { useActor } from '@/hooks/useActor';
+import { useInternetIdentity } from '@/hooks/useInternetIdentity';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +13,11 @@ type Mode = 'login' | 'register';
 
 export default function AdminLogin() {
     const navigate = useNavigate();
-    const { data: isRegistered, isLoading: checkingRegistration } = useIsAdminRegistered();
+    const { actor, isFetching: actorFetching } = useActor();
+    const { identity, loginStatus, login, clear } = useInternetIdentity();
+    const isAuthenticated = !!identity;
+    const isLoggingIn = loginStatus === 'logging-in';
+    const isInitializing = loginStatus === 'initializing';
 
     const [mode, setMode] = useState<Mode>('login');
     const [username, setUsername] = useState('');
@@ -25,6 +31,29 @@ export default function AdminLogin() {
     const loginMutation = useLoginAdmin();
     const registerMutation = useRegisterAdmin();
 
+    // If already has a valid admin session token, redirect to admin dashboard
+    useEffect(() => {
+        const token = getAdminSessionToken();
+        if (token) {
+            navigate({ to: '/admin' });
+        }
+    }, [navigate]);
+
+    const handleIILogin = async () => {
+        setErrorMsg('');
+        try {
+            await login();
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
+            if (msg === 'User is already authenticated') {
+                await clear();
+                setTimeout(() => login(), 300);
+            } else {
+                setErrorMsg('Failed to connect Internet Identity. Please try again.');
+            }
+        }
+    };
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMsg('');
@@ -35,16 +64,21 @@ export default function AdminLogin() {
             return;
         }
 
+        if (!actor) {
+            setErrorMsg('Backend not ready. Please wait a moment and try again.');
+            return;
+        }
+
         try {
             const result = await loginMutation.mutateAsync({ username, password });
-            if (result.ok) {
-                localStorage.setItem('adminSession', 'true');
+            if (result.ok && result.token) {
                 navigate({ to: '/admin' });
             } else {
-                setErrorMsg(result.token || 'Invalid credentials. Please try again.');
+                setErrorMsg(result.message || 'Invalid credentials. Please try again.');
             }
-        } catch {
-            setErrorMsg('Login failed. Please try again.');
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            setErrorMsg(msg || 'Login failed. Please try again.');
         }
     };
 
@@ -52,6 +86,11 @@ export default function AdminLogin() {
         e.preventDefault();
         setErrorMsg('');
         setSuccessMsg('');
+
+        if (!isAuthenticated) {
+            setErrorMsg('Please connect your Internet Identity first to register as admin.');
+            return;
+        }
 
         if (!username.trim() || !password.trim()) {
             setErrorMsg('Please fill in all fields.');
@@ -66,24 +105,38 @@ export default function AdminLogin() {
             return;
         }
 
+        if (!actor) {
+            setErrorMsg('Backend not ready. Please wait a moment and try again.');
+            return;
+        }
+
         try {
             const result = await registerMutation.mutateAsync({ username, password });
             if (result.ok) {
-                setSuccessMsg('Registration successful! You can now log in.');
-                setMode('login');
-                setUsername('');
-                setPassword('');
-                setConfirmPassword('');
+                // If a session token was stored during registration, go straight to dashboard
+                const token = getAdminSessionToken();
+                if (token) {
+                    navigate({ to: '/admin' });
+                } else {
+                    setSuccessMsg('Registration successful! You can now log in.');
+                    setMode('login');
+                    setUsername('');
+                    setPassword('');
+                    setConfirmPassword('');
+                }
             } else {
                 setErrorMsg(result.message || 'Registration failed.');
             }
-        } catch {
-            setErrorMsg('Registration failed. Please try again.');
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            setErrorMsg(msg || 'Registration failed. Please try again.');
         }
     };
 
     const isLoginPending = loginMutation.isPending;
     const isRegisterPending = registerMutation.isPending;
+    const principalShort = identity ? identity.getPrincipal().toString().slice(0, 16) + '…' : '';
+    const isActorReady = !!actor && !actorFetching;
 
     return (
         <main className="min-h-screen bg-ivory-100 flex items-center justify-center px-4 py-16">
@@ -103,15 +156,99 @@ export default function AdminLogin() {
                     <p className="font-body text-sm text-terracotta-500 mt-1">Admin Portal</p>
                 </div>
 
-                <Card className="border-terracotta-200 shadow-xl bg-white/90 backdrop-blur-sm">
+                {/* Actor loading state */}
+                {(actorFetching || isInitializing) && (
+                    <div className="flex items-center justify-center gap-2 text-sm text-terracotta-500 mb-4 bg-white/80 rounded-lg px-4 py-3 border border-terracotta-100">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Initializing backend connection…
+                    </div>
+                )}
+
+                {/* Step 1: Internet Identity (only required for registration) */}
+                {mode === 'register' && (
+                    <Card className="border-terracotta-200 shadow-xl bg-white/90 backdrop-blur-sm mb-4">
+                        <CardHeader className="pb-3">
+                            <div className="flex items-center gap-2">
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${isAuthenticated ? 'bg-teal-500' : 'bg-terracotta-400'}`}>
+                                    {isAuthenticated ? '✓' : '1'}
+                                </div>
+                                <CardTitle className="font-display text-lg text-terracotta-900">
+                                    Connect Internet Identity
+                                </CardTitle>
+                            </div>
+                            <CardDescription className="font-body text-terracotta-500 text-sm ml-8">
+                                Required to register your admin principal on the blockchain.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {isInitializing ? (
+                                <div className="flex items-center gap-2 text-sm text-terracotta-500 py-2">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Checking authentication status…
+                                </div>
+                            ) : isAuthenticated ? (
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <ShieldCheck className="w-4 h-4 text-teal-600" />
+                                        <span className="font-body text-sm text-teal-700 font-medium">
+                                            Connected: <span className="font-mono text-xs">{principalShort}</span>
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={async () => { await clear(); }}
+                                        className="text-xs text-terracotta-400 hover:text-terracotta-600 underline underline-offset-2 transition-colors"
+                                    >
+                                        Disconnect
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                        <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                                        <p className="font-body text-xs text-amber-700">
+                                            <strong>Important:</strong> Always use the <strong>same Internet Identity</strong> for admin registration.
+                                            The first identity to register becomes the permanent admin principal.
+                                        </p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        onClick={handleIILogin}
+                                        disabled={isLoggingIn || actorFetching}
+                                        className="w-full bg-terracotta-800 hover:bg-terracotta-900 text-ivory-100 font-body font-semibold"
+                                    >
+                                        {isLoggingIn ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                Connecting…
+                                            </>
+                                        ) : (
+                                            <>
+                                                <KeyRound className="w-4 h-4 mr-2" />
+                                                Connect with Internet Identity
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Login / Register Form */}
+                <Card className={`border-terracotta-200 shadow-xl bg-white/90 backdrop-blur-sm transition-opacity ${mode === 'register' && !isAuthenticated ? 'opacity-50 pointer-events-none' : ''}`}>
                     <CardHeader className="pb-4">
-                        <CardTitle className="font-display text-xl text-terracotta-900">
-                            {mode === 'login' ? 'Welcome Back' : 'Create Admin Account'}
-                        </CardTitle>
-                        <CardDescription className="font-body text-terracotta-500">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white bg-terracotta-700">
+                                {mode === 'register' ? '2' : '1'}
+                            </div>
+                            <CardTitle className="font-display text-lg text-terracotta-900">
+                                {mode === 'login' ? 'Sign In' : 'Create Admin Account'}
+                            </CardTitle>
+                        </div>
+                        <CardDescription className="font-body text-terracotta-500 text-sm ml-8">
                             {mode === 'login'
-                                ? 'Sign in to access the admin dashboard.'
-                                : 'Set up your admin credentials to get started.'}
+                                ? 'Enter your admin credentials to access the dashboard.'
+                                : 'Set up your admin username and password.'}
                         </CardDescription>
                     </CardHeader>
 
@@ -148,7 +285,7 @@ export default function AdminLogin() {
                                         onChange={(e) => setUsername(e.target.value)}
                                         className="pl-9 border-terracotta-200 focus:border-saffron-500 focus:ring-saffron-500 font-body"
                                         autoComplete="username"
-                                        disabled={isLoginPending || isRegisterPending}
+                                        disabled={isLoginPending || isRegisterPending || !isActorReady}
                                     />
                                 </div>
                             </div>
@@ -168,7 +305,7 @@ export default function AdminLogin() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="pl-9 pr-10 border-terracotta-200 focus:border-saffron-500 focus:ring-saffron-500 font-body"
                                         autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                                        disabled={isLoginPending || isRegisterPending}
+                                        disabled={isLoginPending || isRegisterPending || !isActorReady}
                                     />
                                     <button
                                         type="button"
@@ -197,7 +334,7 @@ export default function AdminLogin() {
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             className="pl-9 pr-10 border-terracotta-200 focus:border-saffron-500 focus:ring-saffron-500 font-body"
                                             autoComplete="new-password"
-                                            disabled={isRegisterPending}
+                                            disabled={isRegisterPending || !isActorReady}
                                         />
                                         <button
                                             type="button"
@@ -214,7 +351,7 @@ export default function AdminLogin() {
                             {/* Submit button */}
                             <Button
                                 type="submit"
-                                disabled={isLoginPending || isRegisterPending || checkingRegistration}
+                                disabled={isLoginPending || isRegisterPending || !isActorReady}
                                 className="w-full bg-terracotta-800 hover:bg-terracotta-900 text-ivory-100 font-body font-semibold mt-2"
                             >
                                 {(isLoginPending || isRegisterPending) ? (
@@ -223,57 +360,41 @@ export default function AdminLogin() {
                                         {mode === 'login' ? 'Signing in…' : 'Registering…'}
                                     </>
                                 ) : (
-                                    mode === 'login' ? 'Sign In' : 'Create Account'
+                                    mode === 'login' ? 'Sign In' : 'Create Admin Account'
                                 )}
                             </Button>
                         </form>
 
-                        {/* Toggle between login and register */}
-                        {!checkingRegistration && (
-                            <div className="mt-5 pt-4 border-t border-terracotta-100 text-center">
-                                {mode === 'login' && !isRegistered && (
-                                    <p className="font-body text-sm text-terracotta-600">
+                        {/* Mode toggle */}
+                        <div className="mt-5 text-center">
+                            <p className="font-body text-sm text-terracotta-500">
+                                {mode === 'login' ? (
+                                    <>
                                         No admin account yet?{' '}
                                         <button
-                                            onClick={() => {
-                                                setMode('register');
-                                                setErrorMsg('');
-                                                setSuccessMsg('');
-                                            }}
-                                            className="text-saffron-600 hover:text-saffron-700 font-semibold underline underline-offset-2 transition-colors"
+                                            type="button"
+                                            onClick={() => { setMode('register'); setErrorMsg(''); setSuccessMsg(''); }}
+                                            className="text-terracotta-700 font-semibold hover:underline transition-colors"
                                         >
-                                            Register here
+                                            Register
                                         </button>
-                                    </p>
-                                )}
-                                {mode === 'register' && (
-                                    <p className="font-body text-sm text-terracotta-600">
+                                    </>
+                                ) : (
+                                    <>
                                         Already have an account?{' '}
                                         <button
-                                            onClick={() => {
-                                                setMode('login');
-                                                setErrorMsg('');
-                                                setSuccessMsg('');
-                                            }}
-                                            className="text-saffron-600 hover:text-saffron-700 font-semibold underline underline-offset-2 transition-colors"
+                                            type="button"
+                                            onClick={() => { setMode('login'); setErrorMsg(''); setSuccessMsg(''); }}
+                                            className="text-terracotta-700 font-semibold hover:underline transition-colors"
                                         >
-                                            Sign in
+                                            Sign In
                                         </button>
-                                    </p>
+                                    </>
                                 )}
-                                {mode === 'login' && isRegistered && (
-                                    <p className="font-body text-xs text-terracotta-400">
-                                        Admin account is already set up.
-                                    </p>
-                                )}
-                            </div>
-                        )}
+                            </p>
+                        </div>
                     </CardContent>
                 </Card>
-
-                <p className="text-center font-body text-xs text-terracotta-400 mt-6">
-                    SafarX.in Admin Portal · Secure Access
-                </p>
             </div>
         </main>
     );

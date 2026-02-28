@@ -46,17 +46,31 @@ export const PostRecord = IDL.Record({
   'authorDisplayName' : IDL.Text,
   'postId' : IDL.Nat,
 });
+export const UserProfile = IDL.Record({
+  'bio' : IDL.Text,
+  'displayName' : IDL.Text,
+});
 export const UserProfilePublic = IDL.Record({
   'bio' : IDL.Text,
   'displayName' : IDL.Text,
   'userId' : IDL.Nat,
   'joinedAt' : IDL.Int,
 });
+export const SessionToken = IDL.Text;
+export const SessionResponse = IDL.Record({
+  'ok' : IDL.Bool,
+  'token' : SessionToken,
+  'message' : IDL.Text,
+});
 export const LoginResponse = IDL.Record({
   'ok' : IDL.Bool,
   'displayName' : IDL.Text,
   'userId' : IDL.Nat,
   'message' : IDL.Text,
+});
+export const AdminProfile = IDL.Record({
+  'principal' : IDL.Text,
+  'username' : IDL.Text,
 });
 export const RegistrationResponse = IDL.Record({
   'ok' : IDL.Bool,
@@ -102,7 +116,7 @@ export const idlService = IDL.Service({
       [PostResponse],
       [],
     ),
-  'deleteInquiry' : IDL.Func([IDL.Text], [], []),
+  'deleteInquiry' : IDL.Func([IDL.Text, IDL.Opt(IDL.Text)], [], []),
   'deletePost' : IDL.Func(
       [IDL.Nat, IDL.Nat, IDL.Text],
       [IDL.Record({ 'ok' : IDL.Bool, 'message' : IDL.Text })],
@@ -129,6 +143,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getAllPosts' : IDL.Func([], [IDL.Vec(PostRecord)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getCommunityStats' : IDL.Func(
       [],
@@ -142,23 +157,32 @@ export const idlService = IDL.Service({
     ),
   'getInquiry' : IDL.Func([IDL.Text], [Inquiry], ['query']),
   'getPostsByUser' : IDL.Func([IDL.Nat], [IDL.Vec(PostRecord)], ['query']),
+  'getProfileByPrincipal' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Nat],
       [IDL.Opt(UserProfilePublic)],
       ['query'],
     ),
+  'isAdminSession' : IDL.Func([SessionToken], [IDL.Bool], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'likePost' : IDL.Func(
       [IDL.Nat],
       [IDL.Record({ 'ok' : IDL.Bool, 'likes' : IDL.Nat })],
       [],
     ),
+  'loginAdmin' : IDL.Func([IDL.Text, IDL.Text], [SessionResponse], []),
   'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginResponse], []),
+  'registerAdmin' : IDL.Func([IDL.Text, IDL.Text], [AdminProfile], []),
   'registerUser' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
       [RegistrationResponse],
       [],
     ),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'submitInquiry' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [],
@@ -212,17 +236,31 @@ export const idlFactory = ({ IDL }) => {
     'authorDisplayName' : IDL.Text,
     'postId' : IDL.Nat,
   });
+  const UserProfile = IDL.Record({
+    'bio' : IDL.Text,
+    'displayName' : IDL.Text,
+  });
   const UserProfilePublic = IDL.Record({
     'bio' : IDL.Text,
     'displayName' : IDL.Text,
     'userId' : IDL.Nat,
     'joinedAt' : IDL.Int,
   });
+  const SessionToken = IDL.Text;
+  const SessionResponse = IDL.Record({
+    'ok' : IDL.Bool,
+    'token' : SessionToken,
+    'message' : IDL.Text,
+  });
   const LoginResponse = IDL.Record({
     'ok' : IDL.Bool,
     'displayName' : IDL.Text,
     'userId' : IDL.Nat,
     'message' : IDL.Text,
+  });
+  const AdminProfile = IDL.Record({
+    'principal' : IDL.Text,
+    'username' : IDL.Text,
   });
   const RegistrationResponse = IDL.Record({
     'ok' : IDL.Bool,
@@ -268,7 +306,7 @@ export const idlFactory = ({ IDL }) => {
         [PostResponse],
         [],
       ),
-    'deleteInquiry' : IDL.Func([IDL.Text], [], []),
+    'deleteInquiry' : IDL.Func([IDL.Text, IDL.Opt(IDL.Text)], [], []),
     'deletePost' : IDL.Func(
         [IDL.Nat, IDL.Nat, IDL.Text],
         [IDL.Record({ 'ok' : IDL.Bool, 'message' : IDL.Text })],
@@ -295,6 +333,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getAllPosts' : IDL.Func([], [IDL.Vec(PostRecord)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getCommunityStats' : IDL.Func(
         [],
@@ -308,23 +347,32 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getInquiry' : IDL.Func([IDL.Text], [Inquiry], ['query']),
     'getPostsByUser' : IDL.Func([IDL.Nat], [IDL.Vec(PostRecord)], ['query']),
+    'getProfileByPrincipal' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Nat],
         [IDL.Opt(UserProfilePublic)],
         ['query'],
       ),
+    'isAdminSession' : IDL.Func([SessionToken], [IDL.Bool], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'likePost' : IDL.Func(
         [IDL.Nat],
         [IDL.Record({ 'ok' : IDL.Bool, 'likes' : IDL.Nat })],
         [],
       ),
+    'loginAdmin' : IDL.Func([IDL.Text, IDL.Text], [SessionResponse], []),
     'loginUser' : IDL.Func([IDL.Text, IDL.Text], [LoginResponse], []),
+    'registerAdmin' : IDL.Func([IDL.Text, IDL.Text], [AdminProfile], []),
     'registerUser' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
         [RegistrationResponse],
         [],
       ),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'submitInquiry' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],

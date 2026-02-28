@@ -1,38 +1,60 @@
 {
   "kind": "build_request",
-  "title": "Fix Connect Identity / Google Sign-In button hidden behind header",
+  "title": "Fix admin principal storage and verification in backend",
   "projectName": "SafarX.in",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-35",
-      "text": "Fix the 'Connect Identity' / Google Sign-In button on the Community page and CommunityAuthModal so it is no longer obscured by the fixed site header. Ensure the modal/panel and its trigger button have a z-index higher than the header (the header uses a fixed position with its own stacking context), and that any modal overlay, dialog container, or inline auth panel is rendered with sufficient z-index (e.g., z-50 or higher) and correct top/padding offset so the button is fully visible and clickable without being covered by the navigation bar.",
-      "target": "frontend",
+      "id": "REQ-42",
+      "text": "In `backend/main.mo`, audit and fix the admin principal storage and verification logic. When `registerAdmin(username, password)` is called, store `Principal.toText(msg.caller)` in a stable variable (e.g. `adminPrincipal : Text`). For all admin-gated query and update functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`), replace or supplement any broken principal check with a dual-mode guard: (1) if a session token is passed as a parameter, validate it against the token returned by `loginAdmin`; (2) if a principal-based check is used, compare `Principal.toText(msg.caller)` against the stored `adminPrincipal`. Ensure `loginAdmin` returns `{ok: true; token: <sessionToken>}` on successful credential validation so the frontend can use that token for subsequent calls. Remove any check that compares against an uninitialised or hardcoded principal value.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-recent"
         ],
         "quotes": [
-          "connect identity button is hiding behind the header, so fix that button"
+          "Fix the admin permissions check so the correct Internet Identity principal is stored and verified"
         ]
       },
       "acceptanceCriteria": [
-        "The Google Sign-In / Connect Identity button is fully visible and not overlapped by the site header on all screen sizes.",
-        "The CommunityAuthModal dialog/panel renders above the fixed header (z-index higher than the header's stacking context).",
-        "Clicking the Sign-In button is not blocked by the header element on desktop and mobile viewports.",
-        "The modal overlay (if present) also sits above the header and covers the full viewport.",
-        "No regression to header functionality or other modal/dialog components."
+        "Calling `registerAdmin(username, password)` stores `Principal.toText(msg.caller)` in stable backend state.",
+        "`loginAdmin(username, password)` returns `{ok: true; token: <token>}` on valid credentials and `{ok: false; token: \"\"}` on invalid credentials.",
+        "All admin-gated backend functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) accept either a valid session token parameter OR verify the caller principal against the stored admin principal — whichever approach is chosen is applied consistently.",
+        "No admin-gated call rejects a legitimately authenticated admin with 'Your identity does not have admin permissions'.",
+        "If no admin is registered yet, `isAdminRegistered()` returns `false` and admin-gated calls return an appropriate error rather than a principal mismatch error.",
+        "Stable state compiles and the canister upgrades without data loss."
+      ]
+    },
+    {
+      "id": "REQ-43",
+      "text": "In `frontend/src/hooks/useQueries.ts` and `frontend/src/pages/Admin.tsx`, update all admin-gated actor calls (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) to pass the session token stored in localStorage (set after a successful `loginAdmin` call) as a parameter to each backend function, matching the updated backend signature from REQ-42. If the backend now uses a token parameter rather than a principal check, remove any Internet Identity actor requirement for these admin calls so they work with the anonymous actor. Update the error message shown in the UI when a call is rejected: replace the current 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' message with a friendlier message such as 'Admin session expired — please log in again.' and redirect to `/admin/login`.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "Fix the admin permissions check so the correct Internet Identity principal is stored and verified"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each admin-gated React Query hook call passes the stored session token from localStorage as a parameter.",
+        "If the session token is missing or invalid, the UI shows 'Admin session expired — please log in again.' and redirects to `/admin/login`.",
+        "The message 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' no longer appears anywhere in the admin UI.",
+        "Enquiries, community stats, and community user list all load correctly on the Admin Dashboard after a successful login.",
+        "Deleting an enquiry works without a permissions error."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files listed in frontend.immutablePaths (useInternetIdentity.ts, useActor.ts, main.tsx, frontend/src/components/ui).",
-    "Do not alter the header's layout, navigation links, or scroll-aware background behavior."
+    "Do not break existing community or inquiry data stored in stable backend state.",
+    "The session token approach must be consistent between `loginAdmin`, `registerAdmin` and all admin-gated backend functions.",
+    "Do not alter immutable frontend paths: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui`."
   ],
   "nonGoals": [
-    "Redesigning the header or changing its height.",
-    "Changing the Google Sign-In authentication flow or session logic.",
-    "Fixing any other known issues (admin enquiries fetch, community stats display)."
+    "Changing the community user auth flow (Google Sign-In or username/password).",
+    "Modifying the Contact form or inquiry submission logic.",
+    "Adding new admin features beyond fixing the permissions check."
   ],
   "imageRequirements": {
     "required": [],

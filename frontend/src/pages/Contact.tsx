@@ -28,7 +28,7 @@ interface FormData {
 export default function Contact() {
     const [submitted, setSubmitted] = useState(false);
     const { mutateAsync, isPending } = useSubmitInquiry();
-    const search = useSearch({ from: '/contact' });
+    const search = useSearch({ from: '/public-layout/contact' });
     const prefilledDestination = (search as { destination?: string; travelInterest?: string }).destination
         || (search as { destination?: string; travelInterest?: string }).travelInterest
         || '';

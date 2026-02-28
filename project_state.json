@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 19,
+  "projectStateVersion": 27,
   "summary": "Travel agency website for SafarX.in showcasing attractive and viable travel locations across India.",
   "architectural_notes": [
     "Project is a travel agency website under the brand/domain SafarX.in",
@@ -11,7 +11,8 @@
   "known_issues": [
     "Admin dashboard: enquiries fail to load",
     "Admin dashboard: community stats (total members, usernames/display names list, total posts) not displaying correctly",
-    "Connect Identity / Google Sign-In button is hidden behind the site header (z-index or positioning issue)"
+    "Connect Identity / Google Sign-In button is hidden behind the site header (z-index or positioning issue)",
+    "Admin dashboard: 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' error — admin principal mismatch or not set correctly in the backend"
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -230,6 +231,54 @@
         "REQ-35"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-frontend-src-app-tsx-so-that-the-admin-and-admin-login-routes-are-rendered-outside-the-shared-header-footer-layout-wrapper-the-header-and-headerwithadmin-components-must-not-appear-on-any-route-whose-path-starts-with-admin-all-other-routes-home-destinations-contact-packages-community-plan-trip-etc-must-continue-to-render-the-header-as-before",
+      "title": "Update `frontend/src/App.tsx` so that the `/admin` and `/admin/login` routes are rendered outside the shared header/footer layout wrapper. The `Header` and `HeaderWithAdmin` components must not appear on any route whose path starts with `/admin`. All other routes (home, destinations, contact, packages, community, plan-trip, etc.) must continue to render the header as before.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-audit-and-fix-the-useinquiries-or-equivalent-react-query-hook-in-frontend-src-hooks-usequeries-ts-that-fetches-all-enquiries-for-the-admin-dashboard-verify-the-exact-exported-function-name-used-in-backend-main-mo-e-g-getallinquiries-listinquiries-or-getall-and-update-the-actor-call-to-match-it-exactly-add-an-enabled-actor-guard-so-the-query-does-not-fire-before-the-actor-is-resolved-map-the-returned-array-fields-name-email-phone-destination-message-timestamp-correctly-to-the-shape-consumed-by-frontend-src-pages-admin-tsx",
+      "title": "Audit and fix the `useInquiries` (or equivalent) React Query hook in `frontend/src/hooks/useQueries.ts` that fetches all enquiries for the admin dashboard. Verify the exact exported function name used in `backend/main.mo` (e.g. `getAllInquiries`, `listInquiries`, or `getAll`) and update the actor call to match it exactly. Add an `enabled: !!actor` guard so the query does not fire before the actor is resolved. Map the returned array fields (name, email, phone, destination, message, timestamp) correctly to the shape consumed by `frontend/src/pages/Admin.tsx`.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-audit-and-fix-the-usecommunitystats-and-usecommunityuserlist-hooks-in-frontend-src-hooks-usequeries-ts-verify-that-the-backend-functions-getcommunitystats-and-getallcommunityusers-are-correctly-exported-in-backend-main-mo-with-the-expected-signatures-getcommunitystats-async-totalmembers-nat-totalposts-nat-and-getallcommunityusers-async-userid-nat-username-text-displayname-text-joinedat-int-if-they-are-missing-or-have-different-names-return-types-add-or-correct-them-in-backend-main-mo-ensure-both-frontend-hooks-use-enabled-actor-guards-and-correctly-destructure-the-returned-data",
+      "title": "Audit and fix the `useCommunityStats` and `useCommunityUserList` hooks in `frontend/src/hooks/useQueries.ts`. Verify that the backend functions `getCommunityStats` and `getAllCommunityUsers` are correctly exported in `backend/main.mo` with the expected signatures (`getCommunityStats() : async { totalMembers: Nat; totalPosts: Nat }` and `getAllCommunityUsers() : async [{ userId: Nat; username: Text; displayName: Text; joinedAt: Int }]`). If they are missing or have different names/return types, add or correct them in `backend/main.mo`. Ensure both frontend hooks use `enabled: !!actor` guards and correctly destructure the returned data.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-pages-admin-tsx-ensure-the-actor-from-useactor-is-fully-awaited-resolved-before-any-data-fetch-queries-are-triggered-add-defensive-null-undefined-checks-on-the-returned-inquiry-and-community-stats-data-before-rendering-the-table-cards-display-a-loading-skeleton-while-data-is-being-fetched-and-a-descriptive-error-message-e-g-failed-to-load-enquiries-please-refresh-if-a-query-errors-for-both-the-enquiries-section-and-the-community-stats-section",
+      "title": "In `frontend/src/pages/Admin.tsx`, ensure the actor from `useActor` is fully awaited/resolved before any data-fetch queries are triggered. Add defensive null/undefined checks on the returned inquiry and community stats data before rendering the table/cards. Display a loading skeleton while data is being fetched and a descriptive error message (e.g. 'Failed to load enquiries — please refresh') if a query errors, for both the enquiries section and the community stats section.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-pages-admin-tsx-and-frontend-src-hooks-usequeries-ts-update-all-admin-gated-backend-calls-fetch-inquiries-delete-inquiry-fetch-community-stats-fetch-community-users-to-pass-the-stored-admin-session-token-or-credential-in-the-way-the-updated-backend-expects-if-the-backend-is-changed-to-a-token-based-auth-model-req-40-pass-the-token-as-a-parameter-to-each-relevant-actor-call-if-the-backend-is-changed-to-a-principal-based-model-ensure-the-actor-is-created-with-the-authenticated-internet-identity-so-msg-caller-resolves-correctly-remove-or-update-any-ui-error-message-that-currently-shows-your-identity-does-not-have-admin-permissions-so-that-a-helpful-accurate-message-is-shown-only-when-the-user-is-genuinely-not-authenticated-as-admin",
+      "title": "In `frontend/src/pages/Admin.tsx` and `frontend/src/hooks/useQueries.ts`, update all admin-gated backend calls (fetch inquiries, delete inquiry, fetch community stats, fetch community users) to pass the stored admin session token or credential in the way the updated backend expects. If the backend is changed to a token-based auth model (REQ-40), pass the token as a parameter to each relevant actor call. If the backend is changed to a principal-based model, ensure the actor is created with the authenticated Internet Identity so `msg.caller` resolves correctly. Remove or update any UI error message that currently shows 'Your identity does not have admin permissions' so that a helpful, accurate message is shown only when the user is genuinely not authenticated as admin.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-frontend-src-hooks-usequeries-ts-and-frontend-src-pages-admin-tsx-update-all-admin-gated-actor-calls-getallinquiries-deleteinquiry-getcommunitystats-getallcommunityusers-to-pass-the-session-token-stored-in-localstorage-set-after-a-successful-loginadmin-call-as-a-parameter-to-each-backend-function-matching-the-updated-backend-signature-from-req-42-if-the-backend-now-uses-a-token-parameter-rather-than-a-principal-check-remove-any-internet-identity-actor-requirement-for-these-admin-calls-so-they-work-with-the-anonymous-actor-update-the-error-message-shown-in-the-ui-when-a-call-is-rejected-replace-the-current-your-identity-does-not-have-admin-permissions-make-sure-you-are-using-the-correct-internet-identity-principal-message-with-a-friendlier-message-such-as-admin-session-expired-please-log-in-again-and-redirect-to-admin-login",
+      "title": "In `frontend/src/hooks/useQueries.ts` and `frontend/src/pages/Admin.tsx`, update all admin-gated actor calls (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) to pass the session token stored in localStorage (set after a successful `loginAdmin` call) as a parameter to each backend function, matching the updated backend signature from REQ-42. If the backend now uses a token parameter rather than a principal check, remove any Internet Identity actor requirement for these admin calls so they work with the anonymous actor. Update the error message shown in the UI when a call is rejected: replace the current 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' message with a friendlier message such as 'Admin session expired — please log in again.' and redirect to `/admin/login`.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -372,6 +421,28 @@
       "summary": "Add backend query functions to `backend/main.mo` to expose community statistics needed by the admin dashboard: (1) `getCommunityStats() : async { totalMembers: Nat; totalPosts: Nat }` — returns the count of all registered community users and all community posts; (2) `getAllCommunityUsers() : async [{ userId: Nat; username: Text; displayName: Text; joinedAt: Int }]` — returns a list of all registered community users (no passwords). These must read from the existing stable `communityUsers` map.",
       "reqIds": [
         "REQ-32"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Remove/hide the site header when navigating to the admin section (/admin routes)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "In `backend/main.mo`, audit the admin access control logic that checks the caller's Internet Identity principal for admin permissions. The current implementation rejects valid admin callers with 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' Identify the root cause: either (a) the admin principal is stored/compared incorrectly, (b) the principal check uses a hardcoded or uninitialised value instead of the dynamically registered caller's principal, or (c) the backend does not store the registering caller's principal at all. Fix the logic so that when `registerAdmin` is called, the caller's principal (`Principal.toText(msg.caller)`) is stored in stable state. All subsequent admin-gated calls (e.g. `getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) must verify `Principal.toText(msg.caller) == storedAdminPrincipal` (or fall back to username/password session token if no principal-based check is intended). If the backend currently uses a principal-based guard but the stored principal does not match the Internet Identity used at login, replace the principal guard with a session-token/flag approach consistent with the `loginAdmin` returning `{ok: Bool; token: Text}` — i.e. accept a valid session token passed from the frontend rather than checking `msg.caller`, OR correctly bind the admin principal at registration time.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "In `backend/main.mo`, audit and fix the admin principal storage and verification logic. When `registerAdmin(username, password)` is called, store `Principal.toText(msg.caller)` in a stable variable (e.g. `adminPrincipal : Text`). For all admin-gated query and update functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`), replace or supplement any broken principal check with a dual-mode guard: (1) if a session token is passed as a parameter, validate it against the token returned by `loginAdmin`; (2) if a principal-based check is used, compare `Principal.toText(msg.caller)` against the stored `adminPrincipal`. Ensure `loginAdmin` returns `{ok: true; token: <sessionToken>}` on successful credential validation so the frontend can use that token for subsequent calls. Remove any check that compares against an uninitialised or hardcoded principal value.",
+      "reqIds": [
+        "REQ-42"
       ],
       "status": "pending"
     }

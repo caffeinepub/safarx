@@ -11,7 +11,7 @@ import Admin from '@/pages/Admin';
 import AdminLogin from '@/pages/AdminLogin';
 import Community from '@/pages/Community';
 
-// Root layout with Header and Footer
+// Root layout with Header and Footer (for public routes)
 function RootLayout() {
     return (
         <div className="flex flex-col min-h-screen">
@@ -24,43 +24,63 @@ function RootLayout() {
     );
 }
 
-// Routes
+// Bare layout for admin routes (no header, no footer)
+function AdminLayout() {
+    return <Outlet />;
+}
+
+// Root route (no layout of its own — children pick their layout)
 const rootRoute = createRootRoute({
+    component: () => <Outlet />,
+});
+
+// Public layout route
+const publicLayoutRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    id: 'public-layout',
     component: RootLayout,
 });
 
-const homeRoute = createRoute({
+// Admin layout route (no header/footer)
+const adminLayoutRoute = createRoute({
     getParentRoute: () => rootRoute,
+    id: 'admin-layout',
+    component: AdminLayout,
+});
+
+// Public routes
+const homeRoute = createRoute({
+    getParentRoute: () => publicLayoutRoute,
     path: '/',
     component: Home,
 });
 
 const destinationsRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => publicLayoutRoute,
     path: '/destinations',
     component: Destinations,
 });
 
 const destinationDetailRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => publicLayoutRoute,
     path: '/destinations/$id',
     component: DestinationDetail,
 });
 
 const planTripRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => publicLayoutRoute,
     path: '/plan',
     component: PlanTrip,
 });
 
 const packagesRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => publicLayoutRoute,
     path: '/packages',
     component: Packages,
 });
 
 const contactRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => publicLayoutRoute,
     path: '/contact',
     component: Contact,
     validateSearch: (search: Record<string, unknown>): { destination?: string } => ({
@@ -68,34 +88,39 @@ const contactRoute = createRoute({
     }),
 });
 
+const communityRoute = createRoute({
+    getParentRoute: () => publicLayoutRoute,
+    path: '/community',
+    component: Community,
+});
+
+// Admin routes (no header/footer)
 const adminRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => adminLayoutRoute,
     path: '/admin',
     component: Admin,
 });
 
 const adminLoginRoute = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => adminLayoutRoute,
     path: '/admin/login',
     component: AdminLogin,
 });
 
-const communityRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/community',
-    component: Community,
-});
-
 const routeTree = rootRoute.addChildren([
-    homeRoute,
-    destinationsRoute,
-    destinationDetailRoute,
-    planTripRoute,
-    packagesRoute,
-    contactRoute,
-    adminRoute,
-    adminLoginRoute,
-    communityRoute,
+    publicLayoutRoute.addChildren([
+        homeRoute,
+        destinationsRoute,
+        destinationDetailRoute,
+        planTripRoute,
+        packagesRoute,
+        contactRoute,
+        communityRoute,
+    ]),
+    adminLayoutRoute.addChildren([
+        adminRoute,
+        adminLoginRoute,
+    ]),
 ]);
 
 const router = createRouter({ routeTree });

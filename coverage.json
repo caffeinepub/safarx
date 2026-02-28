@@ -1,36 +1,52 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T10:46:40.377Z",
+  "generatedAt": "2026-02-25T18:31:05.127Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
+    "total": 2,
     "implemented": 1,
     "items": [
       {
-        "id": "REQ-35",
-        "summary": "Fix the 'Connect Identity' / Google Sign-In button on the Community page and CommunityAuthModal so it is no longer obscured by the fixed site header. Ensure the modal/panel and its trigger button have a z-index higher than the header (the header uses a fixed position with its own stacking context), and that any modal overlay, dialog container, or inline auth panel is rendered with sufficient z-index (e.g., z-50 or higher) and correct top/padding offset so the button is fully visible and clickable without being covered by the navigation bar.",
+        "id": "REQ-42",
+        "summary": "In `backend/main.mo`, audit and fix the admin principal storage and verification logic. When `registerAdmin(username, password)` is called, store `Principal.toText(msg.caller)` in a stable variable (e.g. `adminPrincipal : Text`). For all admin-gated query and update functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`), replace or supplement any broken principal check with a dual-mode guard: (1) if a session token is passed as a parameter, validate it against the token returned by `loginAdmin`; (2) if a principal-based check is used, compare `Principal.toText(msg.caller)` against the stored `adminPrincipal`. Ensure `loginAdmin` returns `{ok: true; token: <sessionToken>}` on successful credential validation so the frontend can use that token for subsequent calls. Remove any check that compares against an uninitialised or hardcoded principal value.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-43",
+        "summary": "In `frontend/src/hooks/useQueries.ts` and `frontend/src/pages/Admin.tsx`, update all admin-gated actor calls (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) to pass the session token stored in localStorage (set after a successful `loginAdmin` call) as a parameter to each backend function, matching the updated backend signature from REQ-42. If the backend now uses a token parameter rather than a principal check, remove any Internet Identity actor requirement for these admin calls so they work with the anonymous actor. Update the error message shown in the UI when a call is rejected: replace the current 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' message with a friendlier message such as 'Admin session expired — please log in again.' and redirect to `/admin/login`.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/Header.tsx",
-          "frontend/src/components/CommunityAuthModal.tsx",
-          "frontend/src/pages/Community.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Admin.tsx",
+          "frontend/src/pages/AdminLogin.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/Header.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Admin.tsx",
+          "frontend/src/pages/AdminLogin.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/Header.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/Admin.tsx",
+    "frontend/src/pages/AdminLogin.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

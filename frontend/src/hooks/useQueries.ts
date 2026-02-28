@@ -2,18 +2,36 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useState, useCallback } from 'react';
 
+// ─── Admin Session Token Helpers ──────────────────────────────────────────────
+
+const ADMIN_SESSION_KEY = 'adminSession';
+
+export function getAdminSessionToken(): string | null {
+  return localStorage.getItem(ADMIN_SESSION_KEY);
+}
+
+export function setAdminSessionToken(token: string) {
+  localStorage.setItem(ADMIN_SESSION_KEY, token);
+}
+
+export function clearAdminSessionToken() {
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+}
+
 // ─── Inquiry Hooks ────────────────────────────────────────────────────────────
 
 export function useGetAllInquiries() {
   const { actor, isFetching } = useActor();
+  const token = getAdminSessionToken();
 
   return useQuery({
     queryKey: ['inquiries'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
+      if (!token) throw new Error('Admin session expired — please log in again.');
       return actor.getAllInquiries();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && !!token,
     retry: false,
   });
 }
@@ -25,7 +43,9 @@ export function useDeleteInquiry() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.deleteInquiry(id);
+      const token = getAdminSessionToken();
+      if (!token) throw new Error('Admin session expired — please log in again.');
+      return actor.deleteInquiry(id, token);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inquiries'] });
@@ -54,74 +74,75 @@ export function useSubmitInquiry() {
 
 export function useCommunityStats() {
   const { actor, isFetching } = useActor();
+  const token = getAdminSessionToken();
 
   return useQuery({
     queryKey: ['communityStats'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
+      if (!token) throw new Error('Admin session expired — please log in again.');
       return actor.getCommunityStats();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && !!token,
     retry: false,
   });
 }
 
 export function useCommunityUserList() {
   const { actor, isFetching } = useActor();
+  const token = getAdminSessionToken();
 
   return useQuery({
     queryKey: ['communityUserList'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
+      if (!token) throw new Error('Admin session expired — please log in again.');
       return actor.getAllCommunityUsers();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && !!token,
     retry: false,
   });
 }
 
-// ─── Admin Auth (localStorage-based) ─────────────────────────────────────────
-
-const ADMIN_CREDENTIALS_KEY = 'safarx_admin_credentials';
-
-interface AdminCredentials {
-  username: string;
-  password: string;
-}
-
-function getAdminCredentials(): AdminCredentials | null {
-  try {
-    const raw = localStorage.getItem(ADMIN_CREDENTIALS_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as AdminCredentials;
-  } catch {
-    return null;
-  }
-}
-
-function saveAdminCredentials(creds: AdminCredentials) {
-  localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify(creds));
-}
+// ─── Admin Auth (backend-based with session token) ────────────────────────────
 
 export function useIsAdminRegistered() {
+  const { actor, isFetching } = useActor();
+
   return useQuery<boolean>({
     queryKey: ['isAdminRegistered'],
-    queryFn: () => getAdminCredentials() !== null,
+    queryFn: async () => {
+      if (!actor) return false;
+      // Check if admin credentials exist by attempting to verify session
+      // We use isAdminSession with a dummy token to probe — if it returns false
+      // that means the backend is up; we rely on registerAdmin's first-call-wins logic.
+      // A simpler heuristic: check if any adminSession token is stored.
+      return false; // Always allow registration attempt; backend enforces first-call-wins
+    },
+    enabled: !!actor && !isFetching,
     staleTime: Infinity,
   });
 }
 
 export function useRegisterAdmin() {
+  const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ username, password }: { username: string; password: string }) => {
-      const existing = getAdminCredentials();
-      if (existing) {
-        return { ok: false, message: 'Admin already registered.' };
+      if (!actor) throw new Error('Actor not available');
+      try {
+        const profile = await actor.registerAdmin(username, password);
+        // After registering, immediately log in to get the session token
+        const loginResult = await actor.loginAdmin(username, password);
+        if (loginResult.ok && loginResult.token) {
+          setAdminSessionToken(loginResult.token);
+        }
+        return { ok: true, message: 'Registration successful.', profile };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        return { ok: false, message: msg };
       }
-      saveAdminCredentials({ username, password });
-      return { ok: true, message: 'Registration successful.' };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['isAdminRegistered'] });
@@ -130,16 +151,16 @@ export function useRegisterAdmin() {
 }
 
 export function useLoginAdmin() {
+  const { actor } = useActor();
+
   return useMutation({
     mutationFn: async ({ username, password }: { username: string; password: string }) => {
-      const creds = getAdminCredentials();
-      if (!creds) {
-        return { ok: false, token: 'No admin account registered yet.' };
+      if (!actor) throw new Error('Actor not available');
+      const result = await actor.loginAdmin(username, password);
+      if (result.ok && result.token) {
+        setAdminSessionToken(result.token);
       }
-      if (creds.username === username && creds.password === password) {
-        return { ok: true, token: 'authenticated' };
-      }
-      return { ok: false, token: 'Invalid username or password.' };
+      return result;
     },
   });
 }

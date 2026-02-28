@@ -10,6 +10,7 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AdminProfile { 'principal' : string, 'username' : string }
 export interface Inquiry {
   'id' : string,
   'destination' : string,
@@ -38,7 +39,14 @@ export interface PostRecord {
 }
 export interface PostResponse { 'ok' : boolean, 'postId' : bigint }
 export interface RegistrationResponse { 'ok' : boolean, 'message' : string }
+export interface SessionResponse {
+  'ok' : boolean,
+  'token' : SessionToken,
+  'message' : string,
+}
+export type SessionToken = string;
 export type Time = bigint;
+export interface UserProfile { 'bio' : string, 'displayName' : string }
 export interface UserProfilePublic {
   'bio' : string,
   'displayName' : string,
@@ -82,7 +90,7 @@ export interface _SERVICE {
     [bigint, string, string, string, string, string],
     PostResponse
   >,
-  'deleteInquiry' : ActorMethod<[string], undefined>,
+  'deleteInquiry' : ActorMethod<[string, [] | [string]], undefined>,
   'deletePost' : ActorMethod<
     [bigint, bigint, string],
     { 'ok' : boolean, 'message' : string }
@@ -101,6 +109,7 @@ export interface _SERVICE {
   'getAllInquiries' : ActorMethod<[], Array<Inquiry>>,
   'getAllInquiriesSortedByDestination' : ActorMethod<[], Array<Inquiry>>,
   'getAllPosts' : ActorMethod<[], Array<PostRecord>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCommunityStats' : ActorMethod<
     [],
@@ -109,14 +118,19 @@ export interface _SERVICE {
   'getInquiriesByDestination' : ActorMethod<[string], Array<Inquiry>>,
   'getInquiry' : ActorMethod<[string], Inquiry>,
   'getPostsByUser' : ActorMethod<[bigint], Array<PostRecord>>,
+  'getProfileByPrincipal' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getUserProfile' : ActorMethod<[bigint], [] | [UserProfilePublic]>,
+  'isAdminSession' : ActorMethod<[SessionToken], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'likePost' : ActorMethod<[bigint], { 'ok' : boolean, 'likes' : bigint }>,
+  'loginAdmin' : ActorMethod<[string, string], SessionResponse>,
   'loginUser' : ActorMethod<[string, string], LoginResponse>,
+  'registerAdmin' : ActorMethod<[string, string], AdminProfile>,
   'registerUser' : ActorMethod<
     [string, string, string, boolean],
     RegistrationResponse
   >,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitInquiry' : ActorMethod<
     [string, string, string, string, string],
     undefined
