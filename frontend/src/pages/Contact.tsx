@@ -16,6 +16,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import useSEO from '@/hooks/useSEO';
 
 interface FormData {
     name: string;
@@ -32,6 +33,12 @@ export default function Contact() {
     const prefilledDestination = (search as { destination?: string; travelInterest?: string }).destination
         || (search as { destination?: string; travelInterest?: string }).travelInterest
         || '';
+
+    useSEO({
+        title: 'Contact SafarX | Inquire About Indian Travel Packages',
+        description:
+            'Get in touch with SafarX for travel inquiries, custom package requests, and trip planning assistance. Our travel experts are ready to help you plan your perfect Indian journey.',
+    });
 
     const {
         register,
@@ -254,21 +261,20 @@ export default function Contact() {
                                             value={selectedDestination}
                                             onValueChange={(val) => setValue('destination', val, { shouldValidate: true })}
                                         >
-                                            <SelectTrigger className="font-body border-border focus:border-saffron-500">
-                                                <SelectValue placeholder="Select a destination" />
+                                            <SelectTrigger className="font-body text-sm border-border">
+                                                <SelectValue placeholder="Select a destination…" />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="max-h-64">
                                                 {destinations.map((dest) => (
-                                                    <SelectItem key={dest.id} value={dest.name} className="font-body">
-                                                        {dest.name}
+                                                    <SelectItem key={dest.id} value={dest.name} className="font-body text-sm">
+                                                        {dest.name} — {dest.state}
                                                     </SelectItem>
                                                 ))}
+                                                <SelectItem value="Custom / Multiple" className="font-body text-sm">
+                                                    Custom / Multiple Destinations
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <input
-                                            type="hidden"
-                                            {...register('destination', { required: 'Please select a destination' })}
-                                        />
                                         {errors.destination && (
                                             <p className="font-body text-xs text-red-500">{errors.destination.message}</p>
                                         )}
@@ -281,7 +287,7 @@ export default function Contact() {
                                         </Label>
                                         <Textarea
                                             id="message"
-                                            placeholder="Tell us about your travel plans, group size, preferred dates, budget, or any special requirements..."
+                                            placeholder="Tell us about your travel plans, group size, budget, and any special requirements…"
                                             rows={4}
                                             {...register('message', { required: 'Message is required' })}
                                             className="font-body border-border focus:border-saffron-500 resize-none"
@@ -294,16 +300,16 @@ export default function Contact() {
                                     <Button
                                         type="submit"
                                         disabled={isPending}
-                                        className="w-full bg-terracotta-700 hover:bg-terracotta-800 text-ivory-100 font-body font-semibold py-3 h-auto"
+                                        className="w-full bg-terracotta-700 hover:bg-terracotta-800 text-ivory-100 font-body font-semibold rounded-full h-12 gap-2"
                                     >
                                         {isPending ? (
                                             <>
-                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                Sending Enquiry…
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Sending…
                                             </>
                                         ) : (
                                             <>
-                                                <Send className="w-4 h-4 mr-2" />
+                                                <Send className="w-4 h-4" />
                                                 Send Enquiry
                                             </>
                                         )}

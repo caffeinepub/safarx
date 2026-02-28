@@ -1,33 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix admin session token handling in frontend",
+  "title": "Add Google Analytics tag (G-73VJ1TQ3D7) to all pages",
   "requirements": [
     {
-      "id": "REQ-43",
-      "summary": "Update frontend admin calls to use session token authentication and improve error handling",
+      "id": "REQ-1",
+      "summary": "Inject the Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag, ensuring no duplicate tags exist.",
       "acceptanceCriteria": [
-        "Each admin-gated React Query hook call passes the stored session token from localStorage as a parameter.",
-        "If the session token is missing or invalid, the UI shows 'Admin session expired — please log in again.' and redirects to `/admin/login`.",
-        "The message 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' no longer appears anywhere in the admin UI.",
-        "Enquiries, community stats, and community user list all load correctly on the Admin Dashboard after a successful login.",
-        "Deleting an enquiry works without a permissions error."
+        "The gtag.js script tag with src 'https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7' appears as the first child of <head> in frontend/index.html.",
+        "The inline gtag configuration script (dataLayer, gtag('config', 'G-73VJ1TQ3D7')) follows immediately after the async gtag.js script tag.",
+        "No duplicate Google tag scripts exist anywhere in frontend/index.html.",
+        "All pages of the app (Home, Destinations, Packages, PlanTrip, Contact, Community, Admin, AdminLogin, DestinationDetail) load the Google Analytics tag since they all use the single index.html entry point."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Update all admin-gated backend query and mutation hooks (useGetAllInquiries, useDeleteInquiry, useGetCommunityStats, useGetAllCommunityUsers) to retrieve the admin session token from localStorage (key: 'adminSession') and pass it as a parameter to the corresponding backend function calls. Update the backend method signatures to match the new token-based authentication from REQ-42. Remove any dependency on Internet Identity actor for admin operations if the backend now exclusively uses token validation. Add error handling that detects missing or invalid tokens and throws a custom error with message 'Admin session expired — please log in again.'"
-        },
-        {
-          "path": "frontend/src/pages/Admin.tsx",
-          "operation": "modify",
-          "description": "Replace all instances of the error message 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' with 'Admin session expired — please log in again.' Update error handling logic to detect authentication failures from the query hooks and redirect to '/admin/login' when the session is expired or invalid. Ensure that the localStorage token check is performed before rendering the admin dashboard, and redirect immediately if no token is present. Update the logout handler to clear the 'adminSession' token from localStorage. Verify that inquiries table, community stats cards, and community users list all correctly invoke the updated query hooks with token parameters."
-        },
-        {
-          "path": "frontend/src/pages/AdminLogin.tsx",
-          "operation": "modify",
-          "description": "Update the loginAdmin mutation handler to store the session token returned by the backend (from loginAdmin response: {ok: true; token: <token>}) into localStorage under the key 'adminSession' upon successful login. Ensure the token is set before navigating to '/admin'. Update the registerAdmin flow to also call loginAdmin after successful registration to obtain and store the session token. Add a check on component mount to redirect to '/admin' if 'adminSession' token is already present in localStorage, preventing redundant login flows."
+          "description": "Remove any existing Google Analytics gtag.js script tags if present, then insert the two Google Analytics script tags immediately after the opening <head> tag. The first script tag should be '<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7\"></script>'. The second should be an inline script initializing the dataLayer and calling gtag('config', 'G-73VJ1TQ3D7'). Ensure these are the first children of the <head> element, before any existing meta tags, link tags, or other scripts."
         }
       ]
     }

@@ -5,10 +5,17 @@ import CommunityFeed from '@/components/CommunityFeed';
 import CommunityProfile from '@/components/CommunityProfile';
 import CommunityAuthModal from '@/components/CommunityAuthModal';
 import { useCommunityUser } from '@/hooks/useQueries';
+import useSEO from '@/hooks/useSEO';
 
 export default function Community() {
     const { session, login, logout } = useCommunityUser();
     const [authModalOpen, setAuthModalOpen] = useState(false);
+
+    useSEO({
+        title: 'Travel Community | SafarX India Travelers',
+        description:
+            'Join the SafarX travel community. Share your Indian travel experiences, read traveler stories, get inspiration from fellow explorers, and connect with India enthusiasts worldwide.',
+    });
 
     return (
         <div className="min-h-screen bg-ivory-50">

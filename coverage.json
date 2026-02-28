@@ -1,52 +1,34 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T18:31:05.127Z",
+  "generatedAt": "2026-02-28T21:20:31.515Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
+    "total": 1,
     "implemented": 1,
     "items": [
       {
-        "id": "REQ-42",
-        "summary": "In `backend/main.mo`, audit and fix the admin principal storage and verification logic. When `registerAdmin(username, password)` is called, store `Principal.toText(msg.caller)` in a stable variable (e.g. `adminPrincipal : Text`). For all admin-gated query and update functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`), replace or supplement any broken principal check with a dual-mode guard: (1) if a session token is passed as a parameter, validate it against the token returned by `loginAdmin`; (2) if a principal-based check is used, compare `Principal.toText(msg.caller)` against the stored `adminPrincipal`. Ensure `loginAdmin` returns `{ok: true; token: <sessionToken>}` on successful credential validation so the frontend can use that token for subsequent calls. Remove any check that compares against an uninitialised or hardcoded principal value.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-43",
-        "summary": "In `frontend/src/hooks/useQueries.ts` and `frontend/src/pages/Admin.tsx`, update all admin-gated actor calls (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) to pass the session token stored in localStorage (set after a successful `loginAdmin` call) as a parameter to each backend function, matching the updated backend signature from REQ-42. If the backend now uses a token parameter rather than a principal check, remove any Internet Identity actor requirement for these admin calls so they work with the anonymous actor. Update the error message shown in the UI when a call is rejected: replace the current 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' message with a friendlier message such as 'Admin session expired — please log in again.' and redirect to `/admin/login`.",
+        "id": "REQ-1",
+        "summary": "Inject the Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) into the application so it loads on every page. Place the two <script> tags immediately after the opening <head> tag in frontend/index.html. Ensure only one Google tag is present — do not duplicate it if one already exists.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Admin.tsx",
-          "frontend/src/pages/AdminLogin.tsx"
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/Admin.tsx",
-          "frontend/src/pages/AdminLogin.tsx"
+          "frontend/index.html"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/Admin.tsx",
-    "frontend/src/pages/AdminLogin.tsx",
+    "frontend/index.html",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

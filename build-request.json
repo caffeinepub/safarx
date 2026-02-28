@@ -1,60 +1,37 @@
 {
   "kind": "build_request",
-  "title": "Fix admin principal storage and verification in backend",
-  "projectName": "SafarX.in",
-  "priority": "high",
+  "title": "Add Google Analytics tag (G-73VJ1TQ3D7) to all pages",
+  "projectName": "SafarX",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-42",
-      "text": "In `backend/main.mo`, audit and fix the admin principal storage and verification logic. When `registerAdmin(username, password)` is called, store `Principal.toText(msg.caller)` in a stable variable (e.g. `adminPrincipal : Text`). For all admin-gated query and update functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`), replace or supplement any broken principal check with a dual-mode guard: (1) if a session token is passed as a parameter, validate it against the token returned by `loginAdmin`; (2) if a principal-based check is used, compare `Principal.toText(msg.caller)` against the stored `adminPrincipal`. Ensure `loginAdmin` returns `{ok: true; token: <sessionToken>}` on successful credential validation so the frontend can use that token for subsequent calls. Remove any check that compares against an uninitialised or hardcoded principal value.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-recent"
-        ],
-        "quotes": [
-          "Fix the admin permissions check so the correct Internet Identity principal is stored and verified"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Calling `registerAdmin(username, password)` stores `Principal.toText(msg.caller)` in stable backend state.",
-        "`loginAdmin(username, password)` returns `{ok: true; token: <token>}` on valid credentials and `{ok: false; token: \"\"}` on invalid credentials.",
-        "All admin-gated backend functions (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) accept either a valid session token parameter OR verify the caller principal against the stored admin principal — whichever approach is chosen is applied consistently.",
-        "No admin-gated call rejects a legitimately authenticated admin with 'Your identity does not have admin permissions'.",
-        "If no admin is registered yet, `isAdminRegistered()` returns `false` and admin-gated calls return an appropriate error rather than a principal mismatch error.",
-        "Stable state compiles and the canister upgrades without data loss."
-      ]
-    },
-    {
-      "id": "REQ-43",
-      "text": "In `frontend/src/hooks/useQueries.ts` and `frontend/src/pages/Admin.tsx`, update all admin-gated actor calls (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) to pass the session token stored in localStorage (set after a successful `loginAdmin` call) as a parameter to each backend function, matching the updated backend signature from REQ-42. If the backend now uses a token parameter rather than a principal check, remove any Internet Identity actor requirement for these admin calls so they work with the anonymous actor. Update the error message shown in the UI when a call is rejected: replace the current 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' message with a friendlier message such as 'Admin session expired — please log in again.' and redirect to `/admin/login`.",
+      "id": "REQ-1",
+      "text": "Inject the Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) into the application so it loads on every page. Place the two <script> tags immediately after the opening <head> tag in frontend/index.html. Ensure only one Google tag is present — do not duplicate it if one already exists.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-3"
         ],
         "quotes": [
-          "Fix the admin permissions check so the correct Internet Identity principal is stored and verified"
+          "paste it in the code of every page of your website, immediately after the <head> element. Don't add more than one Google tag to each page."
         ]
       },
       "acceptanceCriteria": [
-        "Each admin-gated React Query hook call passes the stored session token from localStorage as a parameter.",
-        "If the session token is missing or invalid, the UI shows 'Admin session expired — please log in again.' and redirects to `/admin/login`.",
-        "The message 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' no longer appears anywhere in the admin UI.",
-        "Enquiries, community stats, and community user list all load correctly on the Admin Dashboard after a successful login.",
-        "Deleting an enquiry works without a permissions error."
+        "The gtag.js script tag with src 'https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7' appears as the first child of <head> in frontend/index.html.",
+        "The inline gtag configuration script (dataLayer, gtag('config', 'G-73VJ1TQ3D7')) follows immediately after the async gtag.js script tag.",
+        "No duplicate Google tag scripts exist anywhere in frontend/index.html.",
+        "All pages of the app (Home, Destinations, Packages, PlanTrip, Contact, Community, Admin, AdminLogin, DestinationDetail) load the Google Analytics tag since they all use the single index.html entry point."
       ]
     }
   ],
   "constraints": [
-    "Do not break existing community or inquiry data stored in stable backend state.",
-    "The session token approach must be consistent between `loginAdmin`, `registerAdmin` and all admin-gated backend functions.",
-    "Do not alter immutable frontend paths: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui`."
+    "Only one Google tag (G-73VJ1TQ3D7) must appear in the HTML — remove any existing gtag snippet before inserting the new one to avoid duplicates.",
+    "Do not modify any files listed in frontend.immutablePaths."
   ],
   "nonGoals": [
-    "Changing the community user auth flow (Google Sign-In or username/password).",
-    "Modifying the Contact form or inquiry submission logic.",
-    "Adding new admin features beyond fixing the permissions check."
+    "Adding Google Analytics to individual page components or route-level hooks.",
+    "Implementing custom event tracking beyond the base gtag configuration.",
+    "Modifying backend code."
   ],
   "imageRequirements": {
     "required": [],

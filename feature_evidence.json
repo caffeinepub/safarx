@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-frontend-src-hooks-usequeries-ts-and-frontend-src-pages-admin-tsx-update-all-admin-gated-actor-calls-getallinquiries-deleteinquiry-getcommunitystats-getallcommunityusers-to-pass-the-session-token-stored-in-localstorage-set-after-a-successful-loginadmin-call-as-a-parameter-to-each-backend-function-matching-the-updated-backend-signature-from-req-42-if-the-backend-now-uses-a-token-parameter-rather-than-a-principal-check-remove-any-internet-identity-actor-requirement-for-these-admin-calls-so-they-work-with-the-anonymous-actor-update-the-error-message-shown-in-the-ui-when-a-call-is-rejected-replace-the-current-your-identity-does-not-have-admin-permissions-make-sure-you-are-using-the-correct-internet-identity-principal-message-with-a-friendlier-message-such-as-admin-session-expired-please-log-in-again-and-redirect-to-admin-login",
-      "featureTitle": "In `frontend/src/hooks/useQueries.ts` and `frontend/src/pages/Admin.tsx`, update all admin-gated actor calls (`getAllInquiries`, `deleteInquiry`, `getCommunityStats`, `getAllCommunityUsers`) to pass the session token stored in localStorage (set after a successful `loginAdmin` call) as a parameter to each backend function, matching the updated backend signature from REQ-42. If the backend now uses a token parameter rather than a principal check, remove any Internet Identity actor requirement for these admin calls so they work with the anonymous actor. Update the error message shown in the UI when a call is rejected: replace the current 'Your identity does not have admin permissions. Make sure you are using the correct Internet Identity principal.' message with a friendlier message such as 'Admin session expired — please log in again.' and redirect to `/admin/login`.",
+      "featureId": "feature-inject-the-google-analytics-gtag-js-snippet-tracking-id-g-73vj1tq3d7-into-the-application-so-it-loads-on-every-page-place-the-two-script-tags-immediately-after-the-opening-head-tag-in-frontend-index-html-ensure-only-one-google-tag-is-present-do-not-duplicate-it-if-one-already-exists",
+      "featureTitle": "Inject the Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) into the application so it loads on every page. Place the two <script> tags immediately after the opening <head> tag in frontend/index.html. Ensure only one Google tag is present — do not duplicate it if one already exists.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/Admin.tsx",
-        "frontend/src/pages/AdminLogin.tsx"
+        "frontend/index.html"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -19,7 +17,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-43"
+        "REQ-1"
       ],
       "confidence": "high"
     }

@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Star, Users, MapPin, Award } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
 import DestinationCard from '@/components/DestinationCard';
 import { featuredDestinations } from '@/data/destinations';
 import { Button } from '@/components/ui/button';
+import useSEO from '@/hooks/useSEO';
+import { getTravelAgencySchema } from '@/utils/structuredData';
 
 const stats = [
     { icon: MapPin, value: '20+', label: 'Destinations' },
@@ -36,6 +39,23 @@ const whyChooseUs = [
 ];
 
 export default function Home() {
+    useSEO({
+        title: "SafarX - Your Trusted Indian Travel Partner | Explore India",
+        description:
+            "Discover India with SafarX. Browse curated destinations, travel packages, and plan your perfect trip with our AI-powered itinerary planner. Authentic Indian travel experiences await.",
+    });
+
+    // Inject TravelAgency JSON-LD structured data
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(getTravelAgencySchema());
+        document.head.appendChild(script);
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
+
     return (
         <main>
             {/* Hero Section */}

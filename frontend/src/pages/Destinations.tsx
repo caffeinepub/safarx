@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import DestinationCard from '@/components/DestinationCard';
 import { destinations, type Region } from '@/data/destinations';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import useSEO from '@/hooks/useSEO';
+import { getBreadcrumbSchema } from '@/utils/structuredData';
 
 const regions: Region[] = ['All', 'North', 'South', 'East', 'West', 'Northeast'];
 
 const regionDescriptions: Record<Region, string> = {
-    All: 'Discover all of India\'s incredible destinations across every region.',
+    All: "Discover all of India's incredible destinations across every region.",
     North: 'Majestic Himalayas, royal Rajasthan, and the spiritual Gangetic plains.',
     South: 'Tropical backwaters, ancient temples, pristine beaches, and lush forests.',
     East: 'Cultural capitals, tea gardens, wildlife sanctuaries, and sacred shores.',
@@ -19,6 +21,28 @@ const regionDescriptions: Record<Region, string> = {
 export default function Destinations() {
     const [search, setSearch] = useState('');
     const [activeRegion, setActiveRegion] = useState<Region>('All');
+
+    useSEO({
+        title: 'Explore Indian Destinations | SafarX Travel Guide',
+        description:
+            "Browse SafarX's comprehensive guide to Indian destinations. From Rajasthan's heritage cities to Himalayan hill stations, Kerala backwaters to Andaman beaches - find your perfect Indian destination.",
+    });
+
+    // Inject BreadcrumbList JSON-LD structured data
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(
+            getBreadcrumbSchema([
+                { name: 'Home', url: 'https://safarx.in' },
+                { name: 'Destinations', url: 'https://safarx.in/destinations' },
+            ])
+        );
+        document.head.appendChild(script);
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
 
     const filtered = destinations.filter((d) => {
         const matchesRegion = activeRegion === 'All' || d.region === activeRegion;

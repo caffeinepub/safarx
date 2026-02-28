@@ -13,6 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import useSEO from '@/hooks/useSEO';
 
 interface PlanFormData {
     destinationId: string;
@@ -38,6 +39,12 @@ const groupTypes: { value: GroupType; label: string; emoji: string }[] = [
 export default function PlanTrip() {
     const [itinerary, setItinerary] = useState<GeneratedItinerary | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
+
+    useSEO({
+        title: 'AI Trip Planner for India | SafarX Custom Itineraries',
+        description:
+            "Plan your perfect Indian vacation with SafarX's AI-powered trip planner. Get personalized day-by-day itineraries for any destination, duration, and travel style. Smart travel planning made easy.",
+    });
 
     const { handleSubmit, setValue, watch, formState: { errors } } = useForm<PlanFormData>({
         defaultValues: {
@@ -220,8 +227,8 @@ export default function PlanTrip() {
                                             onClick={() => setValue('groupType', group.value)}
                                             className={`p-4 rounded-xl border-2 text-center transition-all ${
                                                 selectedGroup === group.value
-                                                    ? 'border-teal-500 bg-teal-50 shadow-sm'
-                                                    : 'border-border bg-background hover:border-teal-300'
+                                                    ? 'border-saffron-500 bg-saffron-50 shadow-sm'
+                                                    : 'border-border bg-background hover:border-saffron-300'
                                             }`}
                                         >
                                             <div className="text-2xl mb-1">{group.emoji}</div>
@@ -231,14 +238,16 @@ export default function PlanTrip() {
                                 </div>
                             </div>
 
+                            {/* Submit */}
                             <Button
                                 type="submit"
+                                size="lg"
                                 disabled={isGenerating || !selectedDestId}
-                                className="w-full bg-saffron-500 hover:bg-saffron-400 text-terracotta-900 font-body font-bold rounded-full py-4 h-auto text-base gap-2 border-0 disabled:opacity-60"
+                                className="w-full bg-saffron-500 hover:bg-saffron-400 text-terracotta-900 font-body font-bold rounded-full border-0 h-14 text-base gap-2"
                             >
                                 {isGenerating ? (
                                     <>
-                                        <span className="animate-spin text-lg">✦</span>
+                                        <span className="animate-spin">✨</span>
                                         Crafting Your Itinerary…
                                     </>
                                 ) : (
@@ -253,19 +262,10 @@ export default function PlanTrip() {
                 </div>
             </section>
 
-            {/* Generated Itinerary */}
+            {/* Itinerary Result */}
             {itinerary && (
-                <section id="itinerary-result" className="pb-20 bg-background">
+                <section id="itinerary-result" className="py-16 bg-ivory-50">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-10">
-                            <span className="inline-block font-body text-xs font-semibold text-primary uppercase tracking-widest mb-3">
-                                Your Personalised Plan
-                            </span>
-                            <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-3">
-                                {itinerary.duration}-Day {itinerary.destination} Itinerary
-                            </h2>
-                            <div className="section-divider w-24 mx-auto" />
-                        </div>
                         <ItineraryTimeline itinerary={itinerary} />
                     </div>
                 </section>

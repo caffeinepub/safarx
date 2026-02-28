@@ -1,14 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Package, Filter } from 'lucide-react';
 import { travelPackages } from '@/data/packages';
 import PackageCard from '@/components/PackageCard';
 import { Button } from '@/components/ui/button';
+import useSEO from '@/hooks/useSEO';
+import { getBreadcrumbSchema } from '@/utils/structuredData';
 
 const categories = ['All', 'Adventure', 'Cultural', 'Relaxation', 'Offbeat', 'Beach', 'Nature', 'Spiritual'];
 
 export default function Packages() {
     const [activeCategory, setActiveCategory] = useState('All');
+
+    useSEO({
+        title: 'Travel Packages for India | SafarX Curated Tours',
+        description:
+            "Explore SafarX's handpicked travel packages for India. Himalayan adventures, Rajasthan heritage tours, Kerala backwater cruises, cultural expeditions, and beach getaways. Find your perfect Indian holiday package.",
+    });
+
+    // Inject BreadcrumbList JSON-LD structured data
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(
+            getBreadcrumbSchema([
+                { name: 'Home', url: 'https://safarx.in' },
+                { name: 'Travel Packages', url: 'https://safarx.in/packages' },
+            ])
+        );
+        document.head.appendChild(script);
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
 
     const filtered = activeCategory === 'All'
         ? travelPackages

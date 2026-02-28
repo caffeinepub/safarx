@@ -1,76 +1,14 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T18:31:05.123Z",
-  "summary": "The diff implements most of REQ-42 and REQ-43. The backend introduces adminPrincipal storage, session tokens, and dual-mode guards. The frontend updates hooks and Admin.tsx to use localStorage session tokens and shows friendlier error messages. However, several specific acceptance criteria have gaps or mismatches worth flagging.",
-  "missing_requirements": [
-    {
-      "id": "REQ-42",
-      "requirement": "Store Principal.toText(msg.caller) as Text in a stable variable when registerAdmin is called.",
-      "reason": "The diff shows 'var adminPrincipal : ?Principal = null' storing the Principal type directly rather than as Text in a stable variable. The AC explicitly requires storing the text representation in a stable variable, and non-stable var declarations may not survive canister upgrades without the explicit stable keyword.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "requirement": "All admin-gated functions accept a session token parameter and validate it consistently. getAllInquiries must accept a token parameter matching the updated signature.",
-      "reason": "The diff shows getAllInquiries() with no token parameter in the backend, but deleteInquiry does accept legacyToken. The frontend useGetAllInquiries also does not pass a token to actor.getAllInquiries(). The token-passing approach is inconsistent across functions.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "requirement": "getCommunityStats and getAllCommunityUsers must accept a session token parameter consistently with the chosen approach.",
-      "reason": "The diff does not show getCommunityStats or getAllCommunityUsers accepting a token parameter in the backend. The frontend hooks call these functions without passing a token, suggesting these backend functions also do not accept tokens.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "requirement": "If no admin is registered yet, isAdminRegistered() returns false and admin-gated calls return an appropriate error rather than a principal mismatch error.",
-      "reason": "The useIsAdminRegistered hook in the frontend always returns false as a hardcoded value without calling a real isAdminRegistered() backend function. There is no evidence in the diff that isAdminRegistered() is properly implemented in the backend to reflect actual registration state.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-43",
-      "requirement": "Each admin-gated React Query hook call passes the stored session token from localStorage as a parameter to the backend function.",
-      "reason": "useGetAllInquiries checks the token is present before calling but calls actor.getAllInquiries() without passing the token as a parameter. useCommunityStats calls actor.getCommunityStats() and useCommunityUserList calls actor.getAllCommunityUsers() — neither passes the token as a parameter to the backend.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "Internet Identity integration retained in AdminLogin.tsx for the registration flow including handleIILogin and an identity check before register.",
-      "reason": "REQ-42 and REQ-43 do not request retaining or adding Internet Identity dependency for admin registration. The build request non-goals state not to change the auth flow beyond fixing permissions. The diff adds explicit II-gated registration logic in AdminLogin.tsx that was not specified.",
-      "evidence": [
-        "frontend/src/pages/AdminLogin.tsx"
-      ]
-    },
-    {
-      "description": "useIsAdminRegistered always returns false as a hardcoded value with a comment saying the backend enforces first-call-wins logic.",
-      "reason": "The spec requires isAdminRegistered() to return false when no admin is registered, implying a real backend call. Replacing this with a permanent hardcoded false on the frontend is a deviation from the specified behavior and was not requested.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts"
-      ]
-    }
-  ],
-  "confidence": 0.72,
+  "generatedAt": "2026-02-28T21:20:31.512Z",
+  "summary": "REQ-1 is fully implemented. The Google Analytics gtag.js snippet (tracking ID: G-73VJ1TQ3D7) has been injected as the first two child elements of <head> in frontend/index.html, with the async script tag followed immediately by the inline dataLayer/gtag configuration script. No duplicate tags are present.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.98,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/Admin.tsx",
-    "frontend/src/pages/AdminLogin.tsx",
+    "frontend/index.html",
     "project_state.json"
   ]
 }
