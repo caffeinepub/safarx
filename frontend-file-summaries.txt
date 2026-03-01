@@ -1,5 +1,5 @@
 {
-  "frontend/index.html": "HTML entry point with all existing SEO, Open Graph, Twitter Card, font, Google Analytics, and GSI script tags, plus a new `<link rel=\"sitemap\">` tag pointing to /sitemap.xml for crawler discoverability.",
+  "frontend/index.html": "HTML entry point with the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) inserted as the first child of `<head>`, followed by all existing SEO meta tags, Open Graph, Twitter Card, Google Fonts, and Google Sign-In script tags.",
   "frontend/src/index.css": "Global stylesheet with OKLCH color system using warm earthy palette (saffron, terracotta, teal, ivory), custom utility classes for hero overlays, full-bleed sections, card hover effects, and typography setup.",
   "frontend/tailwind.config.js": "Extended Tailwind config with custom font families (Playfair Display, Cormorant Garamond, Inter), full saffron/terracotta/teal/ivory color scales, custom shadows, and fade animations.",
   "frontend/src/data/destinations.ts": "Static TypeScript data file exporting 20+ curated Indian destinations with id, name, region, state, descriptions, travel info, highlights, and image paths.",

@@ -1,22 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add LinkedIn social link to footer",
+  "title": "Add Google Analytics 4 gtag.js snippet to all pages",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a LinkedIn icon link to the Footer component pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, placed alongside the existing Instagram social media icon/link",
+      "summary": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag",
       "acceptanceCriteria": [
-        "A LinkedIn icon is visible in the footer's social media links section",
-        "Clicking the LinkedIn icon opens https://www.linkedin.com/company/safarx-in/?viewAsMember=true in a new tab",
-        "The LinkedIn icon is styled consistently with the existing Instagram icon",
-        "The link has rel='noopener noreferrer' for security"
+        "The gtag.js script tag with src 'https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7' appears as the first child inside <head> in frontend/index.html",
+        "The inline gtag configuration script initializing dataLayer and calling gtag('config', 'G-73VJ1TQ3D7') is present immediately after the async gtag.js script tag",
+        "No duplicate Google tag snippets exist anywhere in frontend/index.html",
+        "All existing head content (SEO meta tags, Open Graph, Twitter Card, Google Fonts, Google Sign-In script) is preserved and unmodified"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Footer.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Add a LinkedIn social media link alongside the existing Instagram link in the footer's social media section. Import the Linkedin icon from lucide-react and add a new anchor element with href='https://www.linkedin.com/company/safarx-in/?viewAsMember=true', target='_blank', rel='noopener noreferrer', styled consistently with the Instagram link including hover effects and sizing."
+          "description": "Insert the Google Analytics 4 gtag.js snippet immediately after the opening <head> tag. Add two script elements: (1) an async script loading https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7, and (2) an inline script that initializes window.dataLayer and calls gtag('js', new Date()) and gtag('config', 'G-73VJ1TQ3D7'). Position these as the first children of the <head> element, before all existing meta tags, title, and other scripts. Ensure no duplicate Google tag snippets exist in the file. Preserve all existing head content including SEO meta tags, Open Graph tags, Twitter Card tags, Google Fonts preconnect/stylesheet links, and the Google Sign-In script."
         }
       ]
     }

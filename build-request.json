@@ -1,37 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Add LinkedIn social link to footer",
+  "title": "Add Google Analytics 4 gtag.js snippet to all pages",
   "projectName": "SafarX",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a LinkedIn icon link to the Footer component pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, placed alongside the existing Instagram social media icon/link.",
+      "text": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag. Ensure only one instance of the tag exists in the file.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-4"
         ],
         "quotes": [
-          "linkdin : https://www.linkedin.com/company/safarx-in/?viewAsMember=true"
+          "Copy and paste it in the code of every page of your website, immediately after the <head> element. Don't add more than one Google tag to each page."
         ]
       },
       "acceptanceCriteria": [
-        "A LinkedIn icon is visible in the footer's social media links section",
-        "Clicking the LinkedIn icon opens https://www.linkedin.com/company/safarx-in/?viewAsMember=true in a new tab",
-        "The LinkedIn icon is styled consistently with the existing Instagram icon",
-        "The link has rel='noopener noreferrer' for security"
+        "The gtag.js script tag with src 'https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7' appears as the first child inside <head> in frontend/index.html",
+        "The inline gtag configuration script initializing dataLayer and calling gtag('config', 'G-73VJ1TQ3D7') is present immediately after the async gtag.js script tag",
+        "No duplicate Google tag snippets exist anywhere in frontend/index.html",
+        "All existing head content (SEO meta tags, Open Graph, Twitter Card, Google Fonts, Google Sign-In script) is preserved and unmodified"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any immutable frontend paths",
-    "Use the same icon style and sizing as the existing Instagram social link in the footer"
+    "Do not add more than one Google tag instance to the page",
+    "Do not modify any other part of the frontend beyond inserting the gtag snippet",
+    "The Measurement ID must be exactly G-73VJ1TQ3D7"
   ],
   "nonGoals": [
-    "Adding LinkedIn to the header",
-    "Adding any other social media platforms",
-    "Changing the footer layout or design"
+    "Adding any other analytics or tracking solutions",
+    "Modifying backend code",
+    "Changing any existing SEO or meta tag configuration"
   ],
   "imageRequirements": {
     "required": [],

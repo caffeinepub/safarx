@@ -1,29 +1,23 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Travel/safari website project with social media links being added (Instagram and LinkedIn).",
-  "architectural_notes": [],
+  "summary": "Project with Google Analytics 4 (GA4) tracking integrated via gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) added to all pages.",
+  "architectural_notes": [
+    "Google Analytics 4 (GA4) gtag.js snippet with Measurement ID G-73VJ1TQ3D7 is placed immediately after the <head> element on every page."
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-a-linkedin-icon-link-to-the-footer-component-pointing-to-https-www-linkedin-com-company-safarx-in-viewasmember-true-placed-alongside-the-existing-instagram-social-media-icon-link",
-      "title": "Add a LinkedIn icon link to the Footer component pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, placed alongside the existing Instagram social media icon/link.",
+      "id": "feature-insert-the-google-analytics-4-gtag-js-snippet-measurement-id-g-73vj1tq3d7-into-frontend-index-html-immediately-after-the-opening-head-tag-ensure-only-one-instance-of-the-tag-exists-in-the-file",
+      "title": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag. Ensure only one instance of the tag exists in the file.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Add LinkedIn profile link (https://www.linkedin.com/company/safarx-in/?viewAsMember=true) to website",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "gameProjectType": "none",
+  "new_feature_requests": [],
   "projectName": "SafarX",
   "clarification_mode": "instant",
   "clarification_rounds": 0

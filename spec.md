@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add a LinkedIn social media link to the SafarX footer alongside the existing Instagram icon.
+**Goal:** Add Google Analytics 4 tracking to the SafarX frontend by inserting the gtag.js snippet into the HTML head.
 
 **Planned changes:**
-- Add a LinkedIn icon link in the footer's social media section, pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, opening in a new tab with `rel="noopener noreferrer"`
-- Style the LinkedIn icon consistently with the existing Instagram icon
+- Insert the GA4 gtag.js script tag (Measurement ID: G-73VJ1TQ3D7) as the first child inside `<head>` in `frontend/index.html`
+- Add the inline gtag configuration script immediately after the async gtag.js script tag
+- Ensure no duplicate Google tag snippets exist in the file
 
-**User-visible outcome:** Users will see a LinkedIn icon in the footer next to the Instagram icon, and clicking it will open the SafarX LinkedIn page in a new tab.
+**User-visible outcome:** Google Analytics 4 will track all page visits on the SafarX website using Measurement ID G-73VJ1TQ3D7.

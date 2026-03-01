@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-linkedin-icon-link-to-the-footer-component-pointing-to-https-www-linkedin-com-company-safarx-in-viewasmember-true-placed-alongside-the-existing-instagram-social-media-icon-link",
-      "featureTitle": "Add a LinkedIn icon link to the Footer component pointing to https://www.linkedin.com/company/safarx-in/?viewAsMember=true, placed alongside the existing Instagram social media icon/link.",
+      "featureId": "feature-insert-the-google-analytics-4-gtag-js-snippet-measurement-id-g-73vj1tq3d7-into-frontend-index-html-immediately-after-the-opening-head-tag-ensure-only-one-instance-of-the-tag-exists-in-the-file",
+      "featureTitle": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag. Ensure only one instance of the tag exists in the file.",
       "files": [
-        "frontend/src/components/Footer.tsx"
+        "frontend/index.html"
       ],
       "components": [
         "blob-storage@4.0.0",
