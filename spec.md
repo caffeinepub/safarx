@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix duplicate places in the AI trip planner, expand hidden gem destinations, add PDF download for itineraries, and integrate Gemini API for enriched destination suggestions.
+**Goal:** Add a PDF download button for generated itineraries and a Gemini-powered "Explore More" section on the PlanTrip page.
 
 **Planned changes:**
-- Fix duplicate activity/place names in `itineraryGenerator.ts` by deduplicating entries before returning the final itinerary
-- Add at least 15 new hidden gem Indian destinations (spanning North, South, East, West, Northeast regions) to `destinations.ts` and `itineraryGenerator.ts`, each with full metadata and a "Hidden Gem" tag
-- Add a "Download PDF" button to the itinerary result view (`PlanTrip.tsx` / `ItineraryTimeline.tsx`) using a client-side PDF library; button is hidden/disabled when no itinerary is generated
-- Integrate Google Gemini API (`VITE_GEMINI_API_KEY`) to fetch enriched destination data (hidden gems, local food, cultural experiences, travel tips) when generating an itinerary; display results in a dedicated "Explore More" section with loading state and graceful fallback
+- Add a "Download PDF" button to the itinerary results view (ItineraryTimeline component) that generates and downloads a formatted PDF client-side, including destination name, duration, travel style, and full day-by-day activity breakdown (Morning/Afternoon/Evening).
+- Add an "Explore More" section below the generated itinerary on the PlanTrip page that calls the Google Gemini API with the selected destination, duration, travel style, and group type to display personalized travel suggestions, local tips, and hidden insights.
+- Show a loading state while the Gemini API call is in progress and display a graceful error message if the call fails.
+- Style both new features consistently with SafarX's warm earthy design theme (saffron, terracotta, ivory, teal).
 
-**User-visible outcome:** Users can generate itineraries with no duplicate places, discover many more hidden gem destinations across India, download a well-formatted PDF of their customized itinerary, and see AI-powered suggestions from Gemini alongside the standard itinerary.
+**User-visible outcome:** After generating a trip plan, users can download their itinerary as a clean PDF and view AI-powered personalized travel insights and local tips for their destination.

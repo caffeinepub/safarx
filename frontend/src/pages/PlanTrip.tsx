@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Wand2, MapPin, Calendar, Users, Compass, ChevronDown } from 'lucide-react';
+import { Wand2, MapPin, Calendar, Users, Compass } from 'lucide-react';
 import { destinations } from '@/data/destinations';
 import { generateItinerary, type TravelStyle, type GroupType, type GeneratedItinerary } from '@/utils/itineraryGenerator';
 import ItineraryTimeline from '@/components/ItineraryTimeline';
+import ExploreMoreSection from '@/components/ExploreMoreSection';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -36,8 +37,16 @@ const groupTypes: { value: GroupType; label: string; emoji: string }[] = [
     { value: 'Friends', label: 'Friends', emoji: '👯' },
 ];
 
+interface GeneratedTripParams {
+    itinerary: GeneratedItinerary;
+    destinationName: string;
+    duration: number;
+    travelStyle: TravelStyle;
+    groupType: GroupType;
+}
+
 export default function PlanTrip() {
-    const [itinerary, setItinerary] = useState<GeneratedItinerary | null>(null);
+    const [tripResult, setTripResult] = useState<GeneratedTripParams | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
     useSEO({
@@ -72,7 +81,7 @@ export default function PlanTrip() {
 
     const onSubmit = (data: PlanFormData) => {
         setIsGenerating(true);
-        setItinerary(null);
+        setTripResult(null);
         // Simulate brief "AI thinking" delay for UX
         setTimeout(() => {
             const result = generateItinerary(
@@ -81,12 +90,21 @@ export default function PlanTrip() {
                 data.travelStyle,
                 data.groupType
             );
-            setItinerary(result);
+            if (result) {
+                const dest = destinations.find((d) => d.id === data.destinationId);
+                setTripResult({
+                    itinerary: result,
+                    destinationName: dest?.name ?? result.destination,
+                    duration: Number(data.duration),
+                    travelStyle: data.travelStyle,
+                    groupType: data.groupType,
+                });
+                // Scroll to result
+                setTimeout(() => {
+                    document.getElementById('itinerary-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
             setIsGenerating(false);
-            // Scroll to result
-            setTimeout(() => {
-                document.getElementById('itinerary-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
         }, 1200);
     };
 
@@ -274,10 +292,18 @@ export default function PlanTrip() {
             </section>
 
             {/* Itinerary Result */}
-            {itinerary && (
+            {tripResult && (
                 <section id="itinerary-result" className="py-16 bg-ivory-50">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <ItineraryTimeline itinerary={itinerary} />
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                        <ItineraryTimeline itinerary={tripResult.itinerary} />
+
+                        {/* Explore More — Gemini AI Section */}
+                        <ExploreMoreSection
+                            destination={tripResult.destinationName}
+                            duration={tripResult.duration}
+                            travelStyle={tripResult.travelStyle}
+                            groupType={tripResult.groupType}
+                        />
                     </div>
                 </section>
             )}

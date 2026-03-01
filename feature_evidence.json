@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-duplicate-places-to-visit-bug-in-the-ai-trip-planner-ensure-that-when-a-destination-is-assigned-selected-each-place-or-activity-appears-only-once-across-the-entire-generated-itinerary-deduplicate-activity-names-and-location-names-within-itinerarygenerator-ts-before-returning-the-final-itinerary-structure",
-      "featureTitle": "Fix the duplicate places-to-visit bug in the AI trip planner: ensure that when a destination is assigned/selected, each place or activity appears only once across the entire generated itinerary. Deduplicate activity names and location names within `itineraryGenerator.ts` before returning the final itinerary structure.",
+      "featureId": "feature-add-a-download-pdf-button-to-the-itinerary-view-plantrip-page-itinerarytimeline-component-that-allows-users-to-download-their-generated-day-by-day-itinerary-as-a-formatted-pdf-file-the-pdf-should-include-the-destination-name-duration-travel-style-and-the-full-day-by-day-activity-breakdown",
+      "featureTitle": "Add a 'Download PDF' button to the itinerary view (PlanTrip page / ItineraryTimeline component) that allows users to download their generated day-by-day itinerary as a formatted PDF file. The PDF should include the destination name, duration, travel style, and the full day-by-day activity breakdown.",
       "files": [
-        "frontend/src/utils/itineraryGenerator.ts"
+        "frontend/src/components/ItineraryTimeline.tsx",
+        "frontend/src/utils/pdfGenerator.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -22,12 +23,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-expand-the-destinations-dataset-in-frontend-src-data-destinations-ts-and-the-activity-place-data-in-frontend-src-utils-itinerarygenerator-ts-to-include-a-significantly-larger-and-more-diverse-set-of-hidden-gems-and-off-the-beaten-path-indian-destinations-each-new-destination-must-include-at-minimum-name-region-description-highlights-best-time-to-visit-tags-including-a-hidden-gem-tag-and-a-relevant-image-url-the-itinerary-generator-must-include-curated-activity-sets-for-these-new-destinations",
-      "featureTitle": "Expand the destinations dataset in `frontend/src/data/destinations.ts` and the activity/place data in `frontend/src/utils/itineraryGenerator.ts` to include a significantly larger and more diverse set of hidden gems and off-the-beaten-path Indian destinations. Each new destination must include at minimum: name, region, description, highlights, best time to visit, tags (including a 'Hidden Gem' tag), and a relevant image URL. The itinerary generator must include curated activity sets for these new destinations.",
+      "featureId": "feature-add-a-gemini-powered-explore-more-section-to-the-plantrip-page-that-appears-after-a-trip-itinerary-is-generated-this-section-should-use-the-google-gemini-api-to-fetch-and-display-additional-personalized-travel-suggestions-local-tips-or-hidden-insights-relevant-to-the-selected-destination-and-travel-preferences",
+      "featureTitle": "Add a Gemini-powered 'Explore More' section to the PlanTrip page that appears after a trip itinerary is generated. This section should use the Google Gemini API to fetch and display additional personalized travel suggestions, local tips, or hidden insights relevant to the selected destination and travel preferences.",
       "files": [
-        "frontend/src/data/destinations.ts",
-        "frontend/src/pages/Destinations.tsx",
-        "frontend/src/utils/itineraryGenerator.ts"
+        "frontend/.env.example",
+        "frontend/src/components/ExploreMoreSection.tsx",
+        "frontend/src/pages/PlanTrip.tsx",
+        "frontend/src/utils/geminiClient.ts"
       ],
       "components": [
         "blob-storage@4.0.0",

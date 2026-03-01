@@ -1,5 +1,6 @@
-import { Clock, Sun, Sunset, Moon, Lightbulb, Navigation, Calendar } from 'lucide-react';
+import { Clock, Sun, Sunset, Moon, Lightbulb, Navigation, Calendar, Download } from 'lucide-react';
 import type { GeneratedItinerary, Activity } from '@/utils/itineraryGenerator';
+import { downloadItineraryPDF } from '@/utils/pdfGenerator';
 
 interface ItineraryTimelineProps {
     itinerary: GeneratedItinerary;
@@ -58,7 +59,7 @@ export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps)
                             {itinerary.travelStyle} style · {itinerary.groupType} trip
                         </p>
                     </div>
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2 flex-wrap items-center">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-saffron-500/20 border border-saffron-500/30 text-saffron-300 text-xs font-body font-semibold">
                             <Calendar className="w-3 h-3" />
                             {itinerary.duration} Days
@@ -67,6 +68,15 @@ export default function ItineraryTimeline({ itinerary }: ItineraryTimelineProps)
                             <Clock className="w-3 h-3" />
                             {itinerary.travelStyle}
                         </span>
+                        {/* Download PDF Button */}
+                        <button
+                            onClick={() => downloadItineraryPDF(itinerary)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-saffron-500 hover:bg-saffron-400 text-terracotta-900 text-xs font-body font-bold transition-colors shadow-sm"
+                            title="Download itinerary as PDF"
+                        >
+                            <Download className="w-3 h-3" />
+                            Download PDF
+                        </button>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
