@@ -10,12 +10,12 @@ import { getBreadcrumbSchema } from '@/utils/structuredData';
 const regions: Region[] = ['All', 'North', 'South', 'East', 'West', 'Northeast'];
 
 const regionDescriptions: Record<Region, string> = {
-    All: "Discover all of India's incredible destinations across every region.",
-    North: 'Majestic Himalayas, royal Rajasthan, and the spiritual Gangetic plains.',
-    South: 'Tropical backwaters, ancient temples, pristine beaches, and lush forests.',
-    East: 'Cultural capitals, tea gardens, wildlife sanctuaries, and sacred shores.',
-    West: 'Desert forts, coastal paradises, and the vibrant city of dreams.',
-    Northeast: 'Misty hills, living root bridges, tribal cultures, and wildlife wonders.',
+    All: "Discover all of India's incredible destinations across every region — including hidden gems and offbeat trails.",
+    North: 'Majestic Himalayas, royal Rajasthan, spiritual Gangetic plains, and hidden Himalayan valleys.',
+    South: 'Tropical backwaters, ancient temples, pristine beaches, lush forests, and secret coastal towns.',
+    East: 'Cultural capitals, tea gardens, wildlife sanctuaries, sacred shores, and island paradises.',
+    West: 'Desert forts, coastal paradises, the vibrant city of dreams, and geological wonders.',
+    Northeast: 'Misty hills, living root bridges, tribal cultures, wildlife wonders, and alpine valleys.',
 };
 
 export default function Destinations() {
@@ -28,14 +28,14 @@ export default function Destinations() {
             "Browse India's most breathtaking destinations with SafarX — from Himalayan peaks and Rajasthan forts to Kerala backwaters, Andaman beaches, and Northeast tribal trails.",
         ogTitle: 'Explore Indian Destinations — SafarX',
         ogDescription:
-            "Browse 20+ handpicked destinations across India — Himalayan peaks, Rajasthan forts, Kerala backwaters, Andaman beaches, and Northeast tribal trails, all on SafarX.",
+            "Browse 30+ handpicked destinations across India — Himalayan peaks, Rajasthan forts, Kerala backwaters, Andaman beaches, hidden gems, and Northeast tribal trails, all on SafarX.",
         ogImage: '/assets/generated/hilly-destinations-banner.dim_1400x600.png',
         ogUrl: 'https://safarx.in/destinations',
         ogType: 'website',
         twitterCard: 'summary_large_image',
         twitterTitle: 'Explore Indian Destinations — SafarX',
         twitterDescription:
-            "Browse 20+ handpicked destinations across India — Himalayan peaks, Rajasthan forts, Kerala backwaters, Andaman beaches, and Northeast tribal trails, all on SafarX.",
+            "Browse 30+ handpicked destinations across India — Himalayan peaks, Rajasthan forts, Kerala backwaters, Andaman beaches, hidden gems, and Northeast tribal trails, all on SafarX.",
         twitterImage: '/assets/generated/hilly-destinations-banner.dim_1400x600.png',
     });
 
@@ -61,9 +61,14 @@ export default function Destinations() {
             search === '' ||
             d.name.toLowerCase().includes(search.toLowerCase()) ||
             d.state.toLowerCase().includes(search.toLowerCase()) ||
-            d.shortDescription.toLowerCase().includes(search.toLowerCase());
+            d.shortDescription.toLowerCase().includes(search.toLowerCase()) ||
+            (d.tags ?? []).some((t) => t.toLowerCase().includes(search.toLowerCase()));
         return matchesRegion && matchesSearch;
     });
+
+    // Separate hidden gems for a special section
+    const hiddenGems = filtered.filter((d) => d.tags?.includes('Hidden Gem'));
+    const regularDestinations = filtered.filter((d) => !d.tags?.includes('Hidden Gem'));
 
     return (
         <main className="min-h-screen bg-background">
@@ -85,7 +90,7 @@ export default function Destinations() {
                         All Destinations
                     </h1>
                     <p className="font-cormorant italic text-xl text-ivory-200 max-w-xl mx-auto">
-                        From the peaks of the Himalayas to the tip of Kanyakumari — discover every facet of incredible India.
+                        From the peaks of the Himalayas to the tip of Kanyakumari — discover every facet of incredible India, including hidden gems off the beaten path.
                     </p>
                 </div>
             </div>
@@ -98,7 +103,7 @@ export default function Destinations() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             type="text"
-                            placeholder="Search destinations, states…"
+                            placeholder="Search destinations, states, or tags…"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="pl-9 font-body text-sm bg-background border-border rounded-full h-10"
@@ -149,11 +154,39 @@ export default function Destinations() {
                             <p className="font-body text-sm text-muted-foreground mb-6">
                                 Showing {filtered.length} destination{filtered.length !== 1 ? 's' : ''}
                             </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {filtered.map((dest) => (
-                                    <DestinationCard key={dest.id} destination={dest} />
-                                ))}
-                            </div>
+
+                            {/* Regular Destinations */}
+                            {regularDestinations.length > 0 && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+                                    {regularDestinations.map((dest) => (
+                                        <DestinationCard key={dest.id} destination={dest} />
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Hidden Gems Section */}
+                            {hiddenGems.length > 0 && (
+                                <div>
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="h-px flex-1 bg-border" />
+                                        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-200">
+                                            <span className="text-lg">💎</span>
+                                            <span className="font-display font-bold text-teal-700 text-sm">
+                                                Hidden Gems — Off the Beaten Path
+                                            </span>
+                                        </div>
+                                        <div className="h-px flex-1 bg-border" />
+                                    </div>
+                                    <p className="font-body text-sm text-muted-foreground text-center mb-6">
+                                        Discover India's lesser-known treasures — destinations that reward the curious traveler with authentic experiences and fewer crowds.
+                                    </p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                        {hiddenGems.map((dest) => (
+                                            <DestinationCard key={dest.id} destination={dest} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

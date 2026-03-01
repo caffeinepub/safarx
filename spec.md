@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add Google Analytics 4 tracking to the SafarX frontend by inserting the gtag.js snippet into the HTML head.
+**Goal:** Fix duplicate places in the AI trip planner, expand hidden gem destinations, add PDF download for itineraries, and integrate Gemini API for enriched destination suggestions.
 
 **Planned changes:**
-- Insert the GA4 gtag.js script tag (Measurement ID: G-73VJ1TQ3D7) as the first child inside `<head>` in `frontend/index.html`
-- Add the inline gtag configuration script immediately after the async gtag.js script tag
-- Ensure no duplicate Google tag snippets exist in the file
+- Fix duplicate activity/place names in `itineraryGenerator.ts` by deduplicating entries before returning the final itinerary
+- Add at least 15 new hidden gem Indian destinations (spanning North, South, East, West, Northeast regions) to `destinations.ts` and `itineraryGenerator.ts`, each with full metadata and a "Hidden Gem" tag
+- Add a "Download PDF" button to the itinerary result view (`PlanTrip.tsx` / `ItineraryTimeline.tsx`) using a client-side PDF library; button is hidden/disabled when no itinerary is generated
+- Integrate Google Gemini API (`VITE_GEMINI_API_KEY`) to fetch enriched destination data (hidden gems, local food, cultural experiences, travel tips) when generating an itinerary; display results in a dedicated "Explore More" section with loading state and graceful fallback
 
-**User-visible outcome:** Google Analytics 4 will track all page visits on the SafarX website using Measurement ID G-73VJ1TQ3D7.
+**User-visible outcome:** Users can generate itineraries with no duplicate places, discover many more hidden gem destinations across India, download a well-formatted PDF of their customized itinerary, and see AI-powered suggestions from Gemini alongside the standard itinerary.

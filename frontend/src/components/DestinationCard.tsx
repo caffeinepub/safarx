@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { MapPin, ArrowRight, Mountain } from 'lucide-react';
+import { MapPin, ArrowRight, Mountain, Gem } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Destination } from '@/data/destinations';
 
@@ -11,6 +11,9 @@ interface DestinationCardProps {
 export default function DestinationCard({ destination, featured = false }: DestinationCardProps) {
     const isGenZ = destination.tags?.includes('Gen-Z Favourite');
     const isHillStation = destination.tags?.includes('Hill Station');
+    const isHiddenGem = destination.tags?.includes('Hidden Gem');
+    // Use the first tag as the primary display tag
+    const primaryTag = destination.tag ?? destination.tags?.[0];
 
     return (
         <Link
@@ -30,22 +33,32 @@ export default function DestinationCard({ destination, featured = false }: Desti
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
                 {/* Primary tag badge (top-left) */}
-                {destination.tag && (
+                {primaryTag && (
                     <div className="absolute top-3 left-3">
-                        <span className="inline-block px-2.5 py-1 rounded-full text-xs font-body font-semibold bg-saffron-500 text-terracotta-900">
-                            {destination.tag}
+                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-body font-semibold ${
+                            isHiddenGem
+                                ? 'bg-teal-500 text-white'
+                                : 'bg-saffron-500 text-terracotta-900'
+                        }`}>
+                            {primaryTag}
                         </span>
                     </div>
                 )}
 
                 {/* Special badges (top-right) */}
                 <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-                    {isGenZ && (
+                    {isHiddenGem && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-body font-bold bg-teal-500/90 text-white backdrop-blur-sm shadow-sm">
+                            <Gem className="w-3 h-3" />
+                            Hidden Gem
+                        </span>
+                    )}
+                    {isGenZ && !isHiddenGem && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-body font-bold bg-teal-500/90 text-white backdrop-blur-sm shadow-sm">
                             ✨ Gen-Z
                         </span>
                     )}
-                    {isHillStation && !isGenZ && (
+                    {isHillStation && !isGenZ && !isHiddenGem && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-body font-bold bg-terracotta-600/90 text-white backdrop-blur-sm shadow-sm">
                             <Mountain className="w-3 h-3" />
                             Hill

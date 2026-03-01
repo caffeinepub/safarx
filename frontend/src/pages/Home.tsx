@@ -3,13 +3,25 @@ import { Link } from '@tanstack/react-router';
 import { ArrowRight, Star, Users, MapPin, Award } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
 import DestinationCard from '@/components/DestinationCard';
-import { featuredDestinations } from '@/data/destinations';
+import { destinations } from '@/data/destinations';
 import { Button } from '@/components/ui/button';
 import useSEO from '@/hooks/useSEO';
 import { getTravelAgencySchema } from '@/utils/structuredData';
 
+// Pick 8 varied featured destinations for the homepage
+const featuredDestinations = [
+    destinations.find((d) => d.id === 'leh-ladakh'),
+    destinations.find((d) => d.id === 'kerala'),
+    destinations.find((d) => d.id === 'hampi'),
+    destinations.find((d) => d.id === 'rajasthan-desert'),
+    destinations.find((d) => d.id === 'meghalaya'),
+    destinations.find((d) => d.id === 'andaman'),
+    destinations.find((d) => d.id === 'varanasi'),
+    destinations.find((d) => d.id === 'kasol'),
+].filter(Boolean);
+
 const stats = [
-    { icon: MapPin, value: '20+', label: 'Destinations' },
+    { icon: MapPin, value: '30+', label: 'Destinations' },
     { icon: Users, value: '10K+', label: 'Happy Travelers' },
     { icon: Star, value: '4.9', label: 'Average Rating' },
     { icon: Award, value: '5+', label: 'Years of Excellence' },
@@ -112,9 +124,9 @@ export default function Home() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {featuredDestinations.slice(0, 8).map((dest) => (
-                            <DestinationCard key={dest.id} destination={dest} featured />
-                        ))}
+                        {featuredDestinations.map((dest) =>
+                            dest ? <DestinationCard key={dest.id} destination={dest} featured /> : null
+                        )}
                     </div>
 
                     <div className="text-center mt-10">

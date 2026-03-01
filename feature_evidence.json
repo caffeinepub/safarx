@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-insert-the-google-analytics-4-gtag-js-snippet-measurement-id-g-73vj1tq3d7-into-frontend-index-html-immediately-after-the-opening-head-tag-ensure-only-one-instance-of-the-tag-exists-in-the-file",
-      "featureTitle": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag. Ensure only one instance of the tag exists in the file.",
+      "featureId": "feature-fix-the-duplicate-places-to-visit-bug-in-the-ai-trip-planner-ensure-that-when-a-destination-is-assigned-selected-each-place-or-activity-appears-only-once-across-the-entire-generated-itinerary-deduplicate-activity-names-and-location-names-within-itinerarygenerator-ts-before-returning-the-final-itinerary-structure",
+      "featureTitle": "Fix the duplicate places-to-visit bug in the AI trip planner: ensure that when a destination is assigned/selected, each place or activity appears only once across the entire generated itinerary. Deduplicate activity names and location names within `itineraryGenerator.ts` before returning the final itinerary structure.",
       "files": [
-        "frontend/index.html"
+        "frontend/src/utils/itineraryGenerator.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -18,6 +18,28 @@
       ],
       "testIds": [
         "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-expand-the-destinations-dataset-in-frontend-src-data-destinations-ts-and-the-activity-place-data-in-frontend-src-utils-itinerarygenerator-ts-to-include-a-significantly-larger-and-more-diverse-set-of-hidden-gems-and-off-the-beaten-path-indian-destinations-each-new-destination-must-include-at-minimum-name-region-description-highlights-best-time-to-visit-tags-including-a-hidden-gem-tag-and-a-relevant-image-url-the-itinerary-generator-must-include-curated-activity-sets-for-these-new-destinations",
+      "featureTitle": "Expand the destinations dataset in `frontend/src/data/destinations.ts` and the activity/place data in `frontend/src/utils/itineraryGenerator.ts` to include a significantly larger and more diverse set of hidden gems and off-the-beaten-path Indian destinations. Each new destination must include at minimum: name, region, description, highlights, best time to visit, tags (including a 'Hidden Gem' tag), and a relevant image URL. The itinerary generator must include curated activity sets for these new destinations.",
+      "files": [
+        "frontend/src/data/destinations.ts",
+        "frontend/src/pages/Destinations.tsx",
+        "frontend/src/utils/itineraryGenerator.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
       ],
       "confidence": "high"
     }

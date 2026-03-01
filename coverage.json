@@ -1,25 +1,65 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-03-01T18:59:10.437Z",
+  "generatedAt": "2026-03-01T20:03:16.360Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 4,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag. Ensure only one instance of the tag exists in the file.",
+        "summary": "Fix the duplicate places-to-visit bug in the AI trip planner: ensure that when a destination is assigned/selected, each place or activity appears only once across the entire generated itinerary. Deduplicate activity names and location names within `itineraryGenerator.ts` before returning the final itinerary structure.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/index.html"
+          "frontend/src/utils/itineraryGenerator.ts",
+          "frontend/src/pages/PlanTrip.tsx"
         ],
         "matchedFiles": [
-          "frontend/index.html"
+          "frontend/src/utils/itineraryGenerator.ts"
         ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Expand the destinations dataset in `frontend/src/data/destinations.ts` and the activity/place data in `frontend/src/utils/itineraryGenerator.ts` to include a significantly larger and more diverse set of hidden gems and off-the-beaten-path Indian destinations. Each new destination must include at minimum: name, region, description, highlights, best time to visit, tags (including a 'Hidden Gem' tag), and a relevant image URL. The itinerary generator must include curated activity sets for these new destinations.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/data/destinations.ts",
+          "frontend/src/utils/itineraryGenerator.ts",
+          "frontend/src/pages/Destinations.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/data/destinations.ts",
+          "frontend/src/utils/itineraryGenerator.ts",
+          "frontend/src/pages/Destinations.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Add a 'Download PDF' button to the itinerary result view in `PlanTrip.tsx` and `ItineraryTimeline.tsx`. When clicked, the button should generate and download a well-formatted PDF of the full customized itinerary including: trip metadata (destination, duration, travel style, group type), day-by-day timeline with morning/afternoon/evening activities, and any tips. Use a client-side PDF generation library (e.g., jsPDF or similar) so no backend changes are needed.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/package.json",
+          "frontend/src/utils/pdfGenerator.ts",
+          "frontend/src/components/ItineraryTimeline.tsx",
+          "frontend/src/pages/PlanTrip.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Integrate the Google Gemini API into the AI trip planner to dynamically fetch additional places to visit, local experiences, and travel tips for the selected destination. When a user generates an itinerary, the planner should call the Gemini API with a structured prompt to retrieve enriched destination data (hidden gems, local food spots, cultural experiences, travel advisories) that supplements the static data in `itineraryGenerator.ts`. Display the Gemini-enhanced suggestions as a dedicated 'Explore More' section within the itinerary result. Use `VITE_GEMINI_API_KEY` as the environment variable for the Gemini API key.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/.env.example",
+          "frontend/src/utils/geminiClient.ts",
+          "frontend/src/components/GeminiSuggestions.tsx",
+          "frontend/src/pages/PlanTrip.tsx"
+        ],
+        "matchedFiles": []
       }
     ]
   },
@@ -28,7 +68,11 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
+    "frontend/src/components/DestinationCard.tsx",
+    "frontend/src/data/destinations.ts",
+    "frontend/src/pages/Destinations.tsx",
+    "frontend/src/pages/Home.tsx",
+    "frontend/src/utils/itineraryGenerator.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

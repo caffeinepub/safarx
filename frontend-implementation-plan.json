@@ -1,22 +1,120 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Google Analytics 4 gtag.js snippet to all pages",
+  "title": "Fix Duplicate Places, Add Hidden Gems, PDF Download & Gemini-Powered Destination Exploration",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag",
+      "summary": "Fix duplicate places-to-visit bug by deduplicating activity names and location names within itineraryGenerator.ts before returning the final itinerary structure",
       "acceptanceCriteria": [
-        "The gtag.js script tag with src 'https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7' appears as the first child inside <head> in frontend/index.html",
-        "The inline gtag configuration script initializing dataLayer and calling gtag('config', 'G-73VJ1TQ3D7') is present immediately after the async gtag.js script tag",
-        "No duplicate Google tag snippets exist anywhere in frontend/index.html",
-        "All existing head content (SEO meta tags, Open Graph, Twitter Card, Google Fonts, Google Sign-In script) is preserved and unmodified"
+        "No activity, attraction, or place name appears more than once in a generated itinerary for any destination.",
+        "Deduplication works across all travel styles (Adventure, Relaxation, Cultural, Budget) and all group types.",
+        "The itinerary still fills all days with unique, meaningful activities even after deduplication."
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/utils/itineraryGenerator.ts",
           "operation": "modify",
-          "description": "Insert the Google Analytics 4 gtag.js snippet immediately after the opening <head> tag. Add two script elements: (1) an async script loading https://www.googletagmanager.com/gtag/js?id=G-73VJ1TQ3D7, and (2) an inline script that initializes window.dataLayer and calls gtag('js', new Date()) and gtag('config', 'G-73VJ1TQ3D7'). Position these as the first children of the <head> element, before all existing meta tags, title, and other scripts. Ensure no duplicate Google tag snippets exist in the file. Preserve all existing head content including SEO meta tags, Open Graph tags, Twitter Card tags, Google Fonts preconnect/stylesheet links, and the Google Sign-In script."
+          "description": "Add deduplication logic to the itinerary generation function to ensure each activity and place name appears only once across the entire generated itinerary. Implement a Set-based tracking mechanism to filter out duplicate activity names and location names before assembling the final day-by-day timeline. Ensure the deduplication preserves variety and fills all days with unique activities."
+        },
+        {
+          "path": "frontend/src/pages/PlanTrip.tsx",
+          "operation": "modify",
+          "description": "Verify that the itinerary generation call properly uses the deduplicated results from itineraryGenerator.ts. Add any necessary client-side validation to confirm no duplicates are displayed in the UI."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Expand destinations dataset with at least 15 new hidden gem Indian destinations including curated activity sets for each",
+      "acceptanceCriteria": [
+        "At least 15 new hidden gem / off-the-beaten-path destinations are added to the destinations dataset.",
+        "Each new destination has a 'Hidden Gem' tag and appears in the Destinations page.",
+        "The AI trip planner can generate a full day-by-day itinerary for each new destination.",
+        "New destinations span multiple regions of India (North, South, East, West, Northeast)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/data/destinations.ts",
+          "operation": "modify",
+          "description": "Add at least 15 new hidden gem Indian destinations spanning all major regions (North, South, East, West, Northeast). Each destination must include: name, region, description, highlights array, bestTimeToVisit string, tags array (including 'Hidden Gem' tag), and imageUrl. Ensure diverse coverage of off-the-beaten-path locations such as Ziro Valley (Arunachal Pradesh), Tawang, Spiti Valley, Gokarna, Coorg, Majuli, Khajuraho, Orchha, Mandu, Chettinad, Tranquebar, Dhanushkodi, Chopta, Munsiyari, and Champaner-Pavagadh."
+        },
+        {
+          "path": "frontend/src/utils/itineraryGenerator.ts",
+          "operation": "modify",
+          "description": "Add curated activity sets (morning/afternoon/evening activities grouped by travel style) for all 15+ new hidden gem destinations. Each destination should have activities defined for all four travel styles (Adventure, Relaxation, Cultural, Budget). Ensure activities are destination-specific, authentic, and varied enough to fill multi-day itineraries without duplication."
+        },
+        {
+          "path": "frontend/src/pages/Destinations.tsx",
+          "operation": "modify",
+          "description": "Verify that the filtering and display logic correctly shows the new hidden gem destinations. Confirm that the 'Hidden Gem' tag appears and the destinations are grouped under the correct region categories."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a 'Download PDF' button to the itinerary result view that generates and downloads a well-formatted client-side PDF of the full customized itinerary",
+      "acceptanceCriteria": [
+        "A clearly visible 'Download PDF' button appears on the generated itinerary view.",
+        "Clicking the button triggers a browser download of a PDF file named after the destination and dates.",
+        "The PDF includes trip title, metadata header, and all day-by-day activities grouped by time of day.",
+        "The PDF is readable and well-formatted with the SafarX brand name included.",
+        "The button is disabled or hidden when no itinerary has been generated yet."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/package.json",
+          "operation": "modify",
+          "description": "Add jspdf as a dependency to enable client-side PDF generation. Use version ^2.5.1 or latest stable."
+        },
+        {
+          "path": "frontend/src/utils/pdfGenerator.ts",
+          "operation": "create",
+          "description": "Create a utility module that exports a generateItineraryPDF function. This function accepts itinerary data (destination, duration, travelStyle, groupType, days array with morning/afternoon/evening activities, and tips) and uses jsPDF to generate a well-formatted PDF document. Include SafarX branding, trip metadata header, day-by-day timeline sections, and proper spacing/typography. Return the PDF as a blob for download."
+        },
+        {
+          "path": "frontend/src/components/ItineraryTimeline.tsx",
+          "operation": "modify",
+          "description": "Add a 'Download PDF' button to the itinerary display. The button should be visible and enabled only when an itinerary has been generated. On click, call the generateItineraryPDF utility function with the current itinerary data and trigger a browser download with a filename format like 'SafarX_Itinerary_DestinationName_StartDate.pdf'. Add a loading state during PDF generation."
+        },
+        {
+          "path": "frontend/src/pages/PlanTrip.tsx",
+          "operation": "modify",
+          "description": "Ensure the itinerary state is structured to support PDF generation. Pass all necessary metadata (destination, duration, travelStyle, groupType, days, tips) to the ItineraryTimeline component so the Download PDF button has complete data access."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Integrate Google Gemini API to dynamically fetch enriched destination data and display Gemini-enhanced suggestions as a dedicated 'Explore More' section within the itinerary result",
+      "acceptanceCriteria": [
+        "The PlanTrip page calls the Gemini API when generating an itinerary and displays enriched results.",
+        "A dedicated 'Explore More' or 'AI-Powered Suggestions' section appears below the main itinerary timeline with Gemini-sourced places and tips.",
+        "A loading state is shown while Gemini is fetching data.",
+        "If the Gemini API call fails, the itinerary still renders using static data and shows a graceful fallback message.",
+        "The Gemini API key is read from the `VITE_GEMINI_API_KEY` environment variable and never hardcoded.",
+        "The Gemini prompt includes destination name, travel style, group type, and duration for context-aware results."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/.env.example",
+          "operation": "modify",
+          "description": "Add the VITE_GEMINI_API_KEY environment variable to the example file with a placeholder value and a comment explaining it is required for AI-powered destination exploration."
+        },
+        {
+          "path": "frontend/src/utils/geminiClient.ts",
+          "operation": "create",
+          "description": "Create a utility module that exports a fetchGeminiSuggestions function. This function reads the VITE_GEMINI_API_KEY from import.meta.env, constructs a structured prompt including destination name, travel style, group type, and duration, and calls the Google Gemini API endpoint to retrieve enriched destination data (hidden gems, local food spots, cultural experiences, travel advisories). Return a structured response with suggestions array and error handling for API failures. Use fetch with proper headers and error boundaries."
+        },
+        {
+          "path": "frontend/src/components/GeminiSuggestions.tsx",
+          "operation": "create",
+          "description": "Create a component that displays Gemini-sourced suggestions in a dedicated 'Explore More' or 'AI-Powered Suggestions' section. Accept suggestions data as props and render them as cards or list items with titles, descriptions, and categories (e.g., hidden gems, local food, cultural experiences). Show a loading spinner when data is being fetched and a graceful fallback message if the Gemini API call fails or returns empty results."
+        },
+        {
+          "path": "frontend/src/pages/PlanTrip.tsx",
+          "operation": "modify",
+          "description": "Integrate the Gemini API call into the itinerary generation flow. After generating the base itinerary, call fetchGeminiSuggestions with the selected destination, travel style, group type, and duration. Manage loading and error states for the Gemini call separately from the main itinerary generation. Render the GeminiSuggestions component below the ItineraryTimeline component, passing the fetched suggestions as props. Ensure the itinerary renders even if the Gemini call fails."
         }
       ]
     }

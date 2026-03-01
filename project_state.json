@@ -1,24 +1,77 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project with Google Analytics 4 (GA4) tracking integrated via gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) added to all pages.",
+  "summary": "AI trip planner web app with itinerary planning features. Fixing duplicate places bug, adding hidden gems destinations, PDF download for itineraries, and Gemini-powered web exploration for more accurate travel results.",
   "architectural_notes": [
-    "Google Analytics 4 (GA4) gtag.js snippet with Measurement ID G-73VJ1TQ3D7 is placed immediately after the <head> element on every page."
+    "Gemini API used for AI trip planning and web exploration of travel destinations",
+    "Google Tag (G-73VJ1TQ3D7) integrated across all pages for analytics"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "AI trip planner shows duplicate places to visit when a place is assigned to it"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-insert-the-google-analytics-4-gtag-js-snippet-measurement-id-g-73vj1tq3d7-into-frontend-index-html-immediately-after-the-opening-head-tag-ensure-only-one-instance-of-the-tag-exists-in-the-file",
-      "title": "Insert the Google Analytics 4 gtag.js snippet (Measurement ID: G-73VJ1TQ3D7) into frontend/index.html immediately after the opening <head> tag. Ensure only one instance of the tag exists in the file.",
+      "id": "feature-fix-the-duplicate-places-to-visit-bug-in-the-ai-trip-planner-ensure-that-when-a-destination-is-assigned-selected-each-place-or-activity-appears-only-once-across-the-entire-generated-itinerary-deduplicate-activity-names-and-location-names-within-itinerarygenerator-ts-before-returning-the-final-itinerary-structure",
+      "title": "Fix the duplicate places-to-visit bug in the AI trip planner: ensure that when a destination is assigned/selected, each place or activity appears only once across the entire generated itinerary. Deduplicate activity names and location names within `itineraryGenerator.ts` before returning the final itinerary structure.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-expand-the-destinations-dataset-in-frontend-src-data-destinations-ts-and-the-activity-place-data-in-frontend-src-utils-itinerarygenerator-ts-to-include-a-significantly-larger-and-more-diverse-set-of-hidden-gems-and-off-the-beaten-path-indian-destinations-each-new-destination-must-include-at-minimum-name-region-description-highlights-best-time-to-visit-tags-including-a-hidden-gem-tag-and-a-relevant-image-url-the-itinerary-generator-must-include-curated-activity-sets-for-these-new-destinations",
+      "title": "Expand the destinations dataset in `frontend/src/data/destinations.ts` and the activity/place data in `frontend/src/utils/itineraryGenerator.ts` to include a significantly larger and more diverse set of hidden gems and off-the-beaten-path Indian destinations. Each new destination must include at minimum: name, region, description, highlights, best time to visit, tags (including a 'Hidden Gem' tag), and a relevant image URL. The itinerary generator must include curated activity sets for these new destinations.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "SafarX",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Fix duplicate places to visit shown in AI trip planner when a place is assigned",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add more dynamic and hidden gems destinations to the AI trip planner",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add a PDF download button for explorers to download their customized itinerary",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Integrate Gemini to explore more travel websites for more places to visit and accurate results",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add a 'Download PDF' button to the itinerary result view in `PlanTrip.tsx` and `ItineraryTimeline.tsx`. When clicked, the button should generate and download a well-formatted PDF of the full customized itinerary including: trip metadata (destination, duration, travel style, group type), day-by-day timeline with morning/afternoon/evening activities, and any tips. Use a client-side PDF generation library (e.g., jsPDF or similar) so no backend changes are needed.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Integrate the Google Gemini API into the AI trip planner to dynamically fetch additional places to visit, local experiences, and travel tips for the selected destination. When a user generates an itinerary, the planner should call the Gemini API with a structured prompt to retrieve enriched destination data (hidden gems, local food spots, cultural experiences, travel advisories) that supplements the static data in `itineraryGenerator.ts`. Display the Gemini-enhanced suggestions as a dedicated 'Explore More' section within the itinerary result. Use `VITE_GEMINI_API_KEY` as the environment variable for the Gemini API key.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "AI Trip Planner",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
