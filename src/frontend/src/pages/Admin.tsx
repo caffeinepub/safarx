@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   clearAdminSessionToken,
@@ -9,6 +9,7 @@ import {
   useCommunityUserList,
   useDeleteInquiry,
   useGetAllInquiries,
+  useGetAllItineraries,
 } from "@/hooks/useQueries";
 import useSEO from "@/hooks/useSEO";
 import { useNavigate } from "@tanstack/react-router";
@@ -24,6 +25,7 @@ import {
   MessageSquare,
   Phone,
   RefreshCw,
+  Route,
   Search,
   Shield,
   Trash2,
@@ -33,6 +35,7 @@ import { useEffect, useState } from "react";
 
 type SortField = "destination" | "name" | "timestamp";
 type SortDir = "asc" | "desc";
+type AdminTab = "inquiries" | "community" | "itineraries";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -41,9 +44,7 @@ export default function Admin() {
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<SortField>("timestamp");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const [activeTab, setActiveTab] = useState<"inquiries" | "community">(
-    "inquiries",
-  );
+  const [activeTab, setActiveTab] = useState<AdminTab>("inquiries");
 
   useSEO({
     title: "Admin Dashboard",
@@ -69,6 +70,13 @@ export default function Admin() {
 
   const { data: communityUsers = [], isLoading: usersLoading } =
     useCommunityUserList();
+
+  const {
+    data: itineraries = [],
+    isLoading: itinerariesLoading,
+    error: itinerariesError,
+    refetch: refetchItineraries,
+  } = useGetAllItineraries();
 
   const deleteInquiry = useDeleteInquiry();
 
@@ -126,6 +134,43 @@ export default function Admin() {
       )
     ) : null;
 
+  const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
+    {
+      key: "inquiries",
+      label: "Inquiries",
+      icon: <MessageSquare className="w-4 h-4" />,
+    },
+    {
+      key: "community",
+      label: "Community",
+      icon: <Users className="w-4 h-4" />,
+    },
+    {
+      key: "itineraries",
+      label: "AI Itineraries",
+      icon: <Route className="w-4 h-4" />,
+    },
+  ];
+
+  // Sort itineraries by newest first
+  const sortedItineraries = [...itineraries].sort(
+    (a, b) => Number(b.createdAt) - Number(a.createdAt),
+  );
+
+  const travelStyleEmoji: Record<string, string> = {
+    Adventure: "🧗",
+    Relaxation: "🧘",
+    Cultural: "🏛️",
+    Budget: "💰",
+  };
+
+  const groupTypeEmoji: Record<string, string> = {
+    Solo: "🧍",
+    Couple: "👫",
+    Family: "👨‍👩‍👧‍👦",
+    Friends: "👯",
+  };
+
   return (
     <div className="min-h-screen bg-terracotta-950 text-ivory-100">
       {/* Header */}
@@ -145,6 +190,7 @@ export default function Admin() {
           <Button
             variant="ghost"
             size="sm"
+            data-ocid="admin.logout.button"
             onClick={handleLogout}
             className="text-ivory-400 hover:text-ivory-100 hover:bg-terracotta-700/50 font-body gap-2"
           >
@@ -181,10 +227,10 @@ export default function Admin() {
               color: "text-terracotta-300",
             },
             {
-              label: "Destinations",
-              value: "20+",
-              icon: MapPin,
-              color: "text-ivory-300",
+              label: "AI Itineraries",
+              value: itinerariesLoading ? "…" : itineraries.length,
+              icon: Route,
+              color: "text-amber-400",
             },
           ].map(({ label, value, icon: Icon, color }) => (
             <Card
@@ -207,19 +253,21 @@ export default function Admin() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 bg-terracotta-800/40 rounded-xl p-1 w-fit">
-          {(["inquiries", "community"] as const).map((tab) => (
+        <div className="flex gap-1 mb-6 bg-terracotta-800/40 rounded-xl p-1 w-fit flex-wrap">
+          {tabs.map((tab) => (
             <button
-              key={tab}
+              key={tab.key}
               type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-lg font-body text-sm font-medium capitalize transition-colors ${
-                activeTab === tab
+              data-ocid={`admin.${tab.key}.tab`}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg font-body text-sm font-medium capitalize transition-colors ${
+                activeTab === tab.key
                   ? "bg-saffron-500 text-terracotta-900"
                   : "text-ivory-400 hover:text-ivory-200"
               }`}
             >
-              {tab}
+              {tab.icon}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -232,6 +280,7 @@ export default function Admin() {
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ivory-500" />
                 <Input
+                  data-ocid="admin.inquiry.search_input"
                   placeholder="Search inquiries…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -250,11 +299,17 @@ export default function Admin() {
             </div>
 
             {inquiriesLoading ? (
-              <div className="flex items-center justify-center py-20">
+              <div
+                data-ocid="admin.inquiry.loading_state"
+                className="flex items-center justify-center py-20"
+              >
                 <Loader2 className="w-6 h-6 animate-spin text-saffron-400" />
               </div>
             ) : inquiriesError ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-700/30">
+              <div
+                data-ocid="admin.inquiry.error_state"
+                className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-700/30"
+              >
                 <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                 <div>
                   <p className="font-body text-sm text-red-300 font-medium">
@@ -266,7 +321,10 @@ export default function Admin() {
                 </div>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="text-center py-20">
+              <div
+                data-ocid="admin.inquiry.empty_state"
+                className="text-center py-20"
+              >
                 <MessageSquare className="w-10 h-10 text-ivory-600 mx-auto mb-3" />
                 <p className="font-body text-ivory-400">
                   {search
@@ -301,9 +359,10 @@ export default function Admin() {
                   </button>
                 </div>
 
-                {filtered.map((inq) => (
+                {filtered.map((inq, idx) => (
                   <Card
                     key={inq.id}
+                    data-ocid={`admin.inquiry.item.${idx + 1}`}
                     className="bg-terracotta-800/40 border-terracotta-700/40 hover:border-terracotta-600/60 transition-colors"
                   >
                     <CardContent className="p-5">
@@ -340,6 +399,7 @@ export default function Admin() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          data-ocid={`admin.inquiry.delete_button.${idx + 1}`}
                           onClick={() => handleDelete(inq.id)}
                           disabled={deleteInquiry.isPending}
                           className="text-red-400 hover:text-red-300 hover:bg-red-900/20 flex-shrink-0"
@@ -363,11 +423,17 @@ export default function Admin() {
         {activeTab === "community" && (
           <div>
             {usersLoading ? (
-              <div className="flex items-center justify-center py-20">
+              <div
+                data-ocid="admin.community.loading_state"
+                className="flex items-center justify-center py-20"
+              >
                 <Loader2 className="w-6 h-6 animate-spin text-saffron-400" />
               </div>
             ) : communityUsers.length === 0 ? (
-              <div className="text-center py-20">
+              <div
+                data-ocid="admin.community.empty_state"
+                className="text-center py-20"
+              >
                 <Users className="w-10 h-10 text-ivory-600 mx-auto mb-3" />
                 <p className="font-body text-ivory-400">
                   No community members yet.
@@ -375,9 +441,10 @@ export default function Admin() {
               </div>
             ) : (
               <div className="space-y-3">
-                {communityUsers.map((user) => (
+                {communityUsers.map((user, idx) => (
                   <Card
                     key={String(user.userId)}
+                    data-ocid={`admin.community.item.${idx + 1}`}
                     className="bg-terracotta-800/40 border-terracotta-700/40"
                   >
                     <CardContent className="p-4">
@@ -401,6 +468,138 @@ export default function Admin() {
                             Number(user.joinedAt) / 1_000_000,
                           ).toLocaleDateString()}
                         </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* AI Itineraries Tab */}
+        {activeTab === "itineraries" && (
+          <div>
+            {/* Toolbar */}
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="font-display font-bold text-lg text-ivory-100">
+                  AI-Generated Itineraries
+                </h2>
+                <p className="font-body text-sm text-ivory-400 mt-0.5">
+                  {itineraries.length} itinerar
+                  {itineraries.length === 1 ? "y" : "ies"} saved via Gemini AI
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                data-ocid="admin.itinerary.refresh.button"
+                onClick={() => refetchItineraries()}
+                className="text-ivory-400 hover:text-ivory-100 hover:bg-terracotta-700/50 font-body gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </Button>
+            </div>
+
+            {itinerariesLoading ? (
+              <div
+                data-ocid="admin.itinerary.loading_state"
+                className="flex items-center justify-center py-20"
+              >
+                <Loader2 className="w-6 h-6 animate-spin text-saffron-400" />
+              </div>
+            ) : itinerariesError ? (
+              <div
+                data-ocid="admin.itinerary.error_state"
+                className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-700/30"
+              >
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                <div>
+                  <p className="font-body text-sm text-red-300 font-medium">
+                    Failed to load itineraries
+                  </p>
+                  <p className="font-body text-xs text-red-400 mt-0.5">
+                    Admin session expired — please log in again.
+                  </p>
+                </div>
+              </div>
+            ) : sortedItineraries.length === 0 ? (
+              <div
+                data-ocid="admin.itinerary.empty_state"
+                className="text-center py-20"
+              >
+                <Route className="w-10 h-10 text-ivory-600 mx-auto mb-3" />
+                <p className="font-body text-ivory-100 font-semibold mb-1">
+                  No itineraries yet
+                </p>
+                <p className="font-body text-ivory-400 text-sm">
+                  Itineraries generated via the AI trip planner will appear
+                  here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {sortedItineraries.map((itin, idx) => (
+                  <Card
+                    key={String(itin.itineraryId)}
+                    data-ocid={`admin.itinerary.item.${idx + 1}`}
+                    className="bg-terracotta-800/40 border-terracotta-700/40 hover:border-amber-600/40 transition-colors"
+                  >
+                    <CardContent className="p-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        {/* Icon */}
+                        <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-center flex-shrink-0">
+                          <Route className="w-5 h-5 text-amber-400" />
+                        </div>
+
+                        {/* Main info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span className="font-display font-semibold text-ivory-100 text-base">
+                              {itin.destination}
+                            </span>
+                            <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/25 font-body text-xs">
+                              {Number(itin.duration)} day
+                              {Number(itin.duration) !== 1 ? "s" : ""}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1">
+                            <span className="font-body text-xs text-ivory-400 flex items-center gap-1">
+                              {travelStyleEmoji[itin.travelStyle] ?? "🗺️"}{" "}
+                              {itin.travelStyle}
+                            </span>
+                            <span className="font-body text-xs text-ivory-400 flex items-center gap-1">
+                              {groupTypeEmoji[itin.groupType] ?? "👤"}{" "}
+                              {itin.groupType}
+                            </span>
+                            <span className="font-body text-xs text-ivory-500">
+                              ID #{String(itin.itineraryId)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Date */}
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-body text-xs text-ivory-500">
+                            {new Date(
+                              Number(itin.createdAt) / 1_000_000,
+                            ).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                          <p className="font-body text-xs text-ivory-600">
+                            {new Date(
+                              Number(itin.createdAt) / 1_000_000,
+                            ).toLocaleTimeString("en-IN", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

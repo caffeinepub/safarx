@@ -447,3 +447,63 @@ export function useChangeUserPassword() {
     },
   });
 }
+
+// ─── AI Itinerary Hooks ───────────────────────────────────────────────────────
+
+export function useSaveItinerary() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      destination: string;
+      duration: number;
+      travelStyle: string;
+      groupType: string;
+      itineraryJson: string;
+    }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveItinerary(
+        data.destination,
+        BigInt(data.duration),
+        data.travelStyle,
+        data.groupType,
+        data.itineraryJson,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allItineraries"] });
+      queryClient.invalidateQueries({ queryKey: ["itineraryCount"] });
+    },
+  });
+}
+
+export function useGetAllItineraries() {
+  const { actor, isFetching } = useActor();
+  const token = getAdminSessionToken();
+
+  return useQuery({
+    queryKey: ["allItineraries"],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      if (!token)
+        throw new Error("Admin session expired — please log in again.");
+      return actor.getAllItineraries();
+    },
+    enabled: !!actor && !isFetching && !!token,
+    retry: false,
+  });
+}
+
+export function useGetItineraryCount() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ["itineraryCount"],
+    queryFn: async () => {
+      if (!actor) return BigInt(0);
+      return actor.getItineraryCount();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}

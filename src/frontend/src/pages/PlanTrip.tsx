@@ -10,14 +10,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { destinations } from "@/data/destinations";
+import { useSaveItinerary } from "@/hooks/useQueries";
 import useSEO from "@/hooks/useSEO";
-import {
-  type GeneratedItinerary,
-  type GroupType,
-  type TravelStyle,
-  generateItinerary,
+import { generateFullItinerary } from "@/utils/geminiClient";
+import type {
+  GeneratedItinerary,
+  GroupType,
+  TravelStyle,
 } from "@/utils/itineraryGenerator";
-import { Calendar, Compass, MapPin, Users, Wand2 } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  Compass,
+  MapPin,
+  Users,
+  Wand2,
+} from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -80,6 +88,12 @@ export default function PlanTrip() {
     null,
   );
   const [isGenerating, setIsGenerating] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+  const [generateError, setGenerateError] = useState<string | null>(null);
+
+  const saveItinerary = useSaveItinerary();
 
   useSEO({
     title: "Plan My Trip",
@@ -116,35 +130,73 @@ export default function PlanTrip() {
   const selectedGroup = watch("groupType");
   const selectedDuration = watch("duration");
 
-  const onSubmit = (data: PlanFormData) => {
+  const onSubmit = async (data: PlanFormData) => {
     setIsGenerating(true);
     setTripResult(null);
-    // Simulate brief "AI thinking" delay for UX
-    setTimeout(() => {
-      const result = generateItinerary(
-        data.destinationId,
-        Number(data.duration),
-        data.travelStyle,
-        data.groupType,
+    setSaveStatus("idle");
+    setGenerateError(null);
+
+    const dest = destinations.find((d) => d.id === data.destinationId);
+    if (!dest) {
+      setGenerateError(
+        "Destination not found. Please select a valid destination.",
       );
-      if (result) {
-        const dest = destinations.find((d) => d.id === data.destinationId);
-        setTripResult({
-          itinerary: result,
-          destinationName: dest?.name ?? result.destination,
+      setIsGenerating(false);
+      return;
+    }
+
+    try {
+      const result = await generateFullItinerary({
+        destinationId: dest.id,
+        destinationName: dest.name,
+        state: dest.state,
+        duration: Number(data.duration),
+        travelStyle: data.travelStyle,
+        groupType: data.groupType,
+        highlights: dest.highlights,
+        bestTimeToVisit: dest.bestTimeToVisit,
+        howToReach: dest.howToReach,
+      });
+
+      setTripResult({
+        itinerary: result,
+        destinationName: dest.name,
+        duration: Number(data.duration),
+        travelStyle: data.travelStyle,
+        groupType: data.groupType,
+      });
+
+      // Scroll to result
+      setTimeout(() => {
+        document
+          .getElementById("itinerary-result")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+
+      // Save to backend
+      setSaveStatus("saving");
+      try {
+        await saveItinerary.mutateAsync({
+          destination: dest.name,
           duration: Number(data.duration),
           travelStyle: data.travelStyle,
           groupType: data.groupType,
+          itineraryJson: JSON.stringify(result),
         });
-        // Scroll to result
-        setTimeout(() => {
-          document
-            .getElementById("itinerary-result")
-            ?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 100);
+        setSaveStatus("saved");
+      } catch (saveErr) {
+        console.error("Failed to save itinerary:", saveErr);
+        setSaveStatus("error");
       }
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to generate itinerary. Please try again.";
+      setGenerateError(message);
+    } finally {
       setIsGenerating(false);
-    }, 1200);
+    }
   };
 
   return (
@@ -163,14 +215,14 @@ export default function PlanTrip() {
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <span className="inline-flex items-center gap-2 font-body text-xs font-semibold text-saffron-400 uppercase tracking-widest mb-3">
             <Wand2 className="w-3.5 h-3.5" />
-            AI-Powered Planner
+            Gemini AI-Powered Planner
           </span>
           <h1 className="font-display font-black text-4xl sm:text-5xl text-ivory-100 mb-4 text-shadow-hero">
             Plan Your Perfect Trip
           </h1>
           <p className="font-cormorant italic text-xl text-ivory-200 max-w-xl mx-auto">
-            Tell us your dream destination and travel style — get a personalised
-            day-by-day itinerary in seconds.
+            Tell us your dream destination and travel style — Gemini AI crafts a
+            personalised day-by-day itinerary for you.
           </p>
         </div>
       </div>
@@ -188,7 +240,8 @@ export default function PlanTrip() {
                   Customise Your Journey
                 </h2>
                 <p className="font-body text-sm text-muted-foreground">
-                  Fill in your preferences and we'll craft your itinerary
+                  Fill in your preferences and Gemini AI will craft your
+                  itinerary
                 </p>
               </div>
             </div>
@@ -207,7 +260,10 @@ export default function PlanTrip() {
                     setValue("destinationId", val, { shouldValidate: true })
                   }
                 >
-                  <SelectTrigger className="font-body text-sm bg-background border-border w-full h-12">
+                  <SelectTrigger
+                    data-ocid="plan.destination.select"
+                    className="font-body text-sm bg-background border-border w-full h-12"
+                  >
                     <SelectValue placeholder="Select a destination…" />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
@@ -228,7 +284,10 @@ export default function PlanTrip() {
                   </SelectContent>
                 </Select>
                 {errors.destinationId && (
-                  <p className="font-body text-xs text-destructive">
+                  <p
+                    data-ocid="plan.destination.error_state"
+                    className="font-body text-xs text-destructive"
+                  >
                     Please select a destination
                   </p>
                 )}
@@ -288,6 +347,7 @@ export default function PlanTrip() {
                     <button
                       key={style.value}
                       type="button"
+                      data-ocid="plan.style.toggle"
                       onClick={() => setValue("travelStyle", style.value)}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
                         selectedStyle === style.value
@@ -318,6 +378,7 @@ export default function PlanTrip() {
                     <button
                       key={group.value}
                       type="button"
+                      data-ocid="plan.group.toggle"
                       onClick={() => setValue("groupType", group.value)}
                       className={`p-4 rounded-xl border-2 text-center transition-all ${
                         selectedGroup === group.value
@@ -334,17 +395,31 @@ export default function PlanTrip() {
                 </div>
               </div>
 
+              {/* Generate Error */}
+              {generateError && (
+                <div
+                  data-ocid="plan.error_state"
+                  className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200"
+                >
+                  <span className="text-red-500 mt-0.5">⚠️</span>
+                  <p className="font-body text-sm text-red-700">
+                    {generateError}
+                  </p>
+                </div>
+              )}
+
               {/* Submit */}
               <Button
                 type="submit"
                 size="lg"
+                data-ocid="plan.submit_button"
                 disabled={isGenerating || !selectedDestId}
                 className="w-full bg-saffron-500 hover:bg-saffron-400 text-terracotta-900 font-body font-bold rounded-full border-0 h-14 text-base gap-2"
               >
                 {isGenerating ? (
                   <>
                     <span className="animate-spin">✨</span>
-                    Crafting Your Itinerary…
+                    Crafting with Gemini AI…
                   </>
                 ) : (
                   <>
@@ -362,6 +437,42 @@ export default function PlanTrip() {
       {tripResult && (
         <section id="itinerary-result" className="py-16 bg-ivory-50">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            {/* Save status banner */}
+            {saveStatus === "saved" && (
+              <div
+                data-ocid="plan.success_state"
+                className="flex items-center gap-3 p-4 rounded-xl bg-green-50 border border-green-200"
+              >
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                <p className="font-body text-sm text-green-700 font-medium">
+                  ✓ Itinerary saved to your SafarX account
+                </p>
+              </div>
+            )}
+            {saveStatus === "saving" && (
+              <div
+                data-ocid="plan.loading_state"
+                className="flex items-center gap-3 p-4 rounded-xl bg-saffron-50 border border-saffron-200"
+              >
+                <span className="animate-spin text-saffron-600">⏳</span>
+                <p className="font-body text-sm text-saffron-700">
+                  Saving your itinerary…
+                </p>
+              </div>
+            )}
+            {saveStatus === "error" && (
+              <div
+                data-ocid="plan.save_error_state"
+                className="flex items-center gap-3 p-4 rounded-xl bg-orange-50 border border-orange-200"
+              >
+                <span>⚠️</span>
+                <p className="font-body text-sm text-orange-700">
+                  Itinerary generated but could not be saved. You can still view
+                  it below.
+                </p>
+              </div>
+            )}
+
             <ItineraryTimeline itinerary={tripResult.itinerary} />
 
             {/* Explore More — Gemini AI Section */}
