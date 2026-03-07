@@ -1,12 +1,22 @@
-# Specification
+# SafarX
 
-## Summary
-**Goal:** Add a PDF download button for generated itineraries and a Gemini-powered "Explore More" section on the PlanTrip page.
+## Current State
+Community posts have a `likes` count stored in the backend, but share counts are stored in localStorage only — meaning they reset on different devices or browsers.
 
-**Planned changes:**
-- Add a "Download PDF" button to the itinerary results view (ItineraryTimeline component) that generates and downloads a formatted PDF client-side, including destination name, duration, travel style, and full day-by-day activity breakdown (Morning/Afternoon/Evening).
-- Add an "Explore More" section below the generated itinerary on the PlanTrip page that calls the Google Gemini API with the selected destination, duration, travel style, and group type to display personalized travel suggestions, local tips, and hidden insights.
-- Show a loading state while the Gemini API call is in progress and display a graceful error message if the call fails.
-- Style both new features consistently with SafarX's warm earthy design theme (saffron, terracotta, ivory, teal).
+## Requested Changes (Diff)
 
-**User-visible outcome:** After generating a trip plan, users can download their itinerary as a clean PDF and view AI-powered personalized travel insights and local tips for their destination.
+### Add
+- `shareCounts` field (`shareCount : Nat`) to `CommunityPost` type in backend
+- `incrementShareCount(postId: Nat)` public shared function in backend that increments and returns the updated share count
+
+### Modify
+- `CommunityFeed.tsx` ShareButton component: replace localStorage-based share count logic with a backend call to `incrementShareCount` when user shares; read `post.shareCount` directly from the post record instead of localStorage
+
+### Remove
+- `SHARE_COUNTS_KEY` localStorage constant and related `getStoredShareCounts` helper in `CommunityFeed.tsx`
+
+## Implementation Plan
+1. Add `shareCount : Nat` field to `CommunityPost` type (default 0 on creation)
+2. Add `incrementShareCount(postId : Nat) : async { ok : Bool; shareCount : Nat }` to backend
+3. Update frontend `ShareButton` to use `post.shareCount` as initial value, call `incrementShareCount` on any share action, and remove localStorage logic
+4. Wire new `useIncrementShareCount` mutation hook in `useQueries.ts`
