@@ -170,10 +170,10 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-body text-xs text-ivory-400">
+          <p className="font-body text-xs text-ivory-300">
             © {year} SafarX.in — All rights reserved.
           </p>
-          <p className="font-body text-xs text-ivory-400 flex items-center gap-1">
+          <p className="font-body text-xs text-ivory-300 flex items-center gap-1">
             Built with{" "}
             <Heart className="w-3 h-3 text-saffron-400 fill-saffron-400" />{" "}
             using{" "}

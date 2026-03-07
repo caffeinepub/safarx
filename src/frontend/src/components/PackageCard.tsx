@@ -7,13 +7,13 @@ interface PackageCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  Adventure: "bg-terracotta-100 text-terracotta-700",
-  Cultural: "bg-saffron-100 text-saffron-700",
-  Relaxation: "bg-teal-100 text-teal-700",
-  Offbeat: "bg-purple-100 text-purple-700",
-  Beach: "bg-blue-100 text-blue-700",
-  Nature: "bg-green-100 text-green-700",
-  Spiritual: "bg-amber-100 text-amber-700",
+  Adventure: "bg-terracotta-100 text-terracotta-800",
+  Cultural: "bg-saffron-100 text-saffron-800",
+  Relaxation: "bg-teal-100 text-teal-800",
+  Offbeat: "bg-purple-100 text-purple-800",
+  Beach: "bg-blue-100 text-blue-800",
+  Nature: "bg-green-100 text-green-800",
+  Spiritual: "bg-amber-100 text-amber-800",
 };
 
 export default function PackageCard({ pkg }: PackageCardProps) {
@@ -32,7 +32,7 @@ export default function PackageCard({ pkg }: PackageCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         {/* Duration Badge */}
         <div className="absolute top-3 right-3">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-body font-bold bg-terracotta-800/90 text-saffron-300 backdrop-blur-sm">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-body font-bold bg-terracotta-900/90 text-ivory-50 backdrop-blur-sm">
             <Clock className="w-3 h-3" />
             {pkg.duration}
           </span>
@@ -47,7 +47,7 @@ export default function PackageCard({ pkg }: PackageCardProps) {
         </div>
         {/* Price on image bottom */}
         <div className="absolute bottom-3 left-3">
-          <span className="font-display font-bold text-saffron-300 text-lg drop-shadow-lg">
+          <span className="font-display font-bold text-white text-lg drop-shadow-lg">
             {pkg.priceRange}
           </span>
         </div>
@@ -62,7 +62,7 @@ export default function PackageCard({ pkg }: PackageCardProps) {
         {/* Destinations */}
         <div className="flex items-start gap-1.5 mb-3">
           <MapPin className="w-3.5 h-3.5 text-terracotta-500 mt-0.5 flex-shrink-0" />
-          <p className="font-body text-xs text-muted-foreground leading-relaxed">
+          <p className="font-body text-xs text-foreground/70 leading-relaxed">
             {pkg.destinations.join(" · ")}
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function PackageCard({ pkg }: PackageCardProps) {
             {pkg.highlights.slice(0, 3).map((h) => (
               <li
                 key={h}
-                className="flex items-start gap-1.5 font-body text-xs text-muted-foreground"
+                className="flex items-start gap-1.5 font-body text-xs text-foreground/65"
               >
                 <span className="text-saffron-500 font-bold mt-0.5 flex-shrink-0">
                   ✦
@@ -90,7 +90,7 @@ export default function PackageCard({ pkg }: PackageCardProps) {
               </li>
             ))}
             {pkg.highlights.length > 3 && (
-              <li className="font-body text-xs text-muted-foreground italic pl-4">
+              <li className="font-body text-xs text-foreground/65 italic pl-4">
                 +{pkg.highlights.length - 3} more inclusions
               </li>
             )}

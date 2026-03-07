@@ -35,15 +35,6 @@ export const Inquiry = IDL.Record({
   'timestamp' : Time,
   'phone' : IDL.Text,
 });
-export const SavedItinerary = IDL.Record({
-  'destination' : IDL.Text,
-  'duration' : IDL.Nat,
-  'itineraryId' : IDL.Nat,
-  'createdAt' : IDL.Int,
-  'itineraryJson' : IDL.Text,
-  'groupType' : IDL.Text,
-  'travelStyle' : IDL.Text,
-});
 export const PostRecord = IDL.Record({
   'title' : IDL.Text,
   'destination' : IDL.Text,
@@ -85,10 +76,6 @@ export const AdminProfile = IDL.Record({
 export const RegistrationResponse = IDL.Record({
   'ok' : IDL.Bool,
   'message' : IDL.Text,
-});
-export const SaveItineraryResult = IDL.Record({
-  'ok' : IDL.Bool,
-  'itineraryId' : IDL.Nat,
 });
 
 export const idlService = IDL.Service({
@@ -156,7 +143,6 @@ export const idlService = IDL.Service({
       [IDL.Vec(Inquiry)],
       ['query'],
     ),
-  'getAllItineraries' : IDL.Func([], [IDL.Vec(SavedItinerary)], ['query']),
   'getAllPosts' : IDL.Func([], [IDL.Vec(PostRecord)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -171,8 +157,6 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getInquiry' : IDL.Func([IDL.Text], [Inquiry], ['query']),
-  'getItinerary' : IDL.Func([IDL.Nat], [IDL.Opt(SavedItinerary)], ['query']),
-  'getItineraryCount' : IDL.Func([], [IDL.Nat], ['query']),
   'getPostsByUser' : IDL.Func([IDL.Nat], [IDL.Vec(PostRecord)], ['query']),
   'getProfileByPrincipal' : IDL.Func(
       [IDL.Principal],
@@ -205,11 +189,6 @@ export const idlService = IDL.Service({
       [],
     ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-  'saveItinerary' : IDL.Func(
-      [IDL.Text, IDL.Nat, IDL.Text, IDL.Text, IDL.Text],
-      [SaveItineraryResult],
-      [],
-    ),
   'submitInquiry' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [],
@@ -252,15 +231,6 @@ export const idlFactory = ({ IDL }) => {
     'timestamp' : Time,
     'phone' : IDL.Text,
   });
-  const SavedItinerary = IDL.Record({
-    'destination' : IDL.Text,
-    'duration' : IDL.Nat,
-    'itineraryId' : IDL.Nat,
-    'createdAt' : IDL.Int,
-    'itineraryJson' : IDL.Text,
-    'groupType' : IDL.Text,
-    'travelStyle' : IDL.Text,
-  });
   const PostRecord = IDL.Record({
     'title' : IDL.Text,
     'destination' : IDL.Text,
@@ -302,10 +272,6 @@ export const idlFactory = ({ IDL }) => {
   const RegistrationResponse = IDL.Record({
     'ok' : IDL.Bool,
     'message' : IDL.Text,
-  });
-  const SaveItineraryResult = IDL.Record({
-    'ok' : IDL.Bool,
-    'itineraryId' : IDL.Nat,
   });
   
   return IDL.Service({
@@ -373,7 +339,6 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(Inquiry)],
         ['query'],
       ),
-    'getAllItineraries' : IDL.Func([], [IDL.Vec(SavedItinerary)], ['query']),
     'getAllPosts' : IDL.Func([], [IDL.Vec(PostRecord)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -388,8 +353,6 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getInquiry' : IDL.Func([IDL.Text], [Inquiry], ['query']),
-    'getItinerary' : IDL.Func([IDL.Nat], [IDL.Opt(SavedItinerary)], ['query']),
-    'getItineraryCount' : IDL.Func([], [IDL.Nat], ['query']),
     'getPostsByUser' : IDL.Func([IDL.Nat], [IDL.Vec(PostRecord)], ['query']),
     'getProfileByPrincipal' : IDL.Func(
         [IDL.Principal],
@@ -422,11 +385,6 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-    'saveItinerary' : IDL.Func(
-        [IDL.Text, IDL.Nat, IDL.Text, IDL.Text, IDL.Text],
-        [SaveItineraryResult],
-        [],
-      ),
     'submitInquiry' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [],

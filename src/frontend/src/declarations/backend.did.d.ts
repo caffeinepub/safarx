@@ -40,16 +40,6 @@ export interface PostRecord {
 }
 export interface PostResponse { 'ok' : boolean, 'postId' : bigint }
 export interface RegistrationResponse { 'ok' : boolean, 'message' : string }
-export interface SaveItineraryResult { 'ok' : boolean, 'itineraryId' : bigint }
-export interface SavedItinerary {
-  'destination' : string,
-  'duration' : bigint,
-  'itineraryId' : bigint,
-  'createdAt' : bigint,
-  'itineraryJson' : string,
-  'groupType' : string,
-  'travelStyle' : string,
-}
 export interface SessionResponse {
   'ok' : boolean,
   'token' : SessionToken,
@@ -119,7 +109,6 @@ export interface _SERVICE {
   >,
   'getAllInquiries' : ActorMethod<[], Array<Inquiry>>,
   'getAllInquiriesSortedByDestination' : ActorMethod<[], Array<Inquiry>>,
-  'getAllItineraries' : ActorMethod<[], Array<SavedItinerary>>,
   'getAllPosts' : ActorMethod<[], Array<PostRecord>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
@@ -129,8 +118,6 @@ export interface _SERVICE {
   >,
   'getInquiriesByDestination' : ActorMethod<[string], Array<Inquiry>>,
   'getInquiry' : ActorMethod<[string], Inquiry>,
-  'getItinerary' : ActorMethod<[bigint], [] | [SavedItinerary]>,
-  'getItineraryCount' : ActorMethod<[], bigint>,
   'getPostsByUser' : ActorMethod<[bigint], Array<PostRecord>>,
   'getProfileByPrincipal' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getUserProfile' : ActorMethod<[bigint], [] | [UserProfilePublic]>,
@@ -149,10 +136,6 @@ export interface _SERVICE {
     RegistrationResponse
   >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  'saveItinerary' : ActorMethod<
-    [string, bigint, string, string, string],
-    SaveItineraryResult
-  >,
   'submitInquiry' : ActorMethod<
     [string, string, string, string, string],
     undefined

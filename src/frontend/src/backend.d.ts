@@ -7,20 +7,9 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface LoginResponse {
-    ok: boolean;
+export interface UserProfile {
+    bio: string;
     displayName: string;
-    userId: bigint;
-    message: string;
-}
-export interface Inquiry {
-    id: string;
-    destination: string;
-    name: string;
-    email: string;
-    message: string;
-    timestamp: Time;
-    phone: string;
 }
 export type Time = bigint;
 export interface RegistrationResponse {
@@ -45,36 +34,34 @@ export interface UserProfilePublic {
     userId: bigint;
     joinedAt: bigint;
 }
-export interface SaveItineraryResult {
-    ok: boolean;
-    itineraryId: bigint;
-}
 export interface AdminProfile {
     principal: string;
     username: string;
 }
 export type SessionToken = string;
+export interface Inquiry {
+    id: string;
+    destination: string;
+    name: string;
+    email: string;
+    message: string;
+    timestamp: Time;
+    phone: string;
+}
+export interface LoginResponse {
+    ok: boolean;
+    displayName: string;
+    userId: bigint;
+    message: string;
+}
 export interface SessionResponse {
     ok: boolean;
     token: SessionToken;
     message: string;
 }
-export interface SavedItinerary {
-    destination: string;
-    duration: bigint;
-    itineraryId: bigint;
-    createdAt: bigint;
-    itineraryJson: string;
-    groupType: string;
-    travelStyle: string;
-}
 export interface PostResponse {
     ok: boolean;
     postId: bigint;
-}
-export interface UserProfile {
-    bio: string;
-    displayName: string;
 }
 export enum UserRole {
     admin = "admin",
@@ -98,7 +85,6 @@ export interface backendInterface {
     }>>;
     getAllInquiries(): Promise<Array<Inquiry>>;
     getAllInquiriesSortedByDestination(): Promise<Array<Inquiry>>;
-    getAllItineraries(): Promise<Array<SavedItinerary>>;
     getAllPosts(): Promise<Array<PostRecord>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -108,8 +94,6 @@ export interface backendInterface {
     }>;
     getInquiriesByDestination(destination: string): Promise<Array<Inquiry>>;
     getInquiry(id: string): Promise<Inquiry>;
-    getItinerary(id: bigint): Promise<SavedItinerary | null>;
-    getItineraryCount(): Promise<bigint>;
     getPostsByUser(userId: bigint): Promise<Array<PostRecord>>;
     getProfileByPrincipal(user: Principal): Promise<UserProfile | null>;
     getUserProfile(userId: bigint): Promise<UserProfilePublic | null>;
@@ -128,7 +112,6 @@ export interface backendInterface {
     registerAdmin(username: string, password: string): Promise<AdminProfile>;
     registerUser(username: string, password: string, displayName: string, isGoogleUser: boolean): Promise<RegistrationResponse>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    saveItinerary(destination: string, duration: bigint, travelStyle: string, groupType: string, itineraryJson: string): Promise<SaveItineraryResult>;
     submitInquiry(name: string, email: string, destination: string, message: string, phone: string): Promise<void>;
     updateUserProfile(userId: bigint, displayName: string, bio: string, password: string): Promise<void>;
 }

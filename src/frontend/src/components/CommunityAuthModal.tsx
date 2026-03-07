@@ -331,7 +331,7 @@ export default function CommunityAuthModal({
             }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 font-body text-sm font-medium transition-colors ${
               mode === "login"
-                ? "text-saffron-600 border-b-2 border-saffron-500 bg-saffron-50"
+                ? "text-saffron-800 border-b-2 border-saffron-500 bg-saffron-50"
                 : "text-terracotta-500 hover:text-terracotta-700"
             }`}
           >
@@ -348,7 +348,7 @@ export default function CommunityAuthModal({
             }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 font-body text-sm font-medium transition-colors ${
               mode === "register"
-                ? "text-saffron-600 border-b-2 border-saffron-500 bg-saffron-50"
+                ? "text-saffron-800 border-b-2 border-saffron-500 bg-saffron-50"
                 : "text-terracotta-500 hover:text-terracotta-700"
             }`}
           >
@@ -385,7 +385,7 @@ export default function CommunityAuthModal({
 
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-terracotta-100" />
-                <span className="font-body text-xs text-terracotta-400">
+                <span className="font-body text-xs text-terracotta-600">
                   or continue with username
                 </span>
                 <div className="flex-1 h-px bg-terracotta-100" />
@@ -414,7 +414,7 @@ export default function CommunityAuthModal({
                   Username
                 </Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-400" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-500" />
                   <Input
                     id="login-username"
                     type="text"
@@ -434,7 +434,7 @@ export default function CommunityAuthModal({
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-500" />
                   <Input
                     id="login-password"
                     type={showPassword ? "text" : "password"}
@@ -447,7 +447,7 @@ export default function CommunityAuthModal({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-terracotta-400 hover:text-terracotta-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-terracotta-500 hover:text-terracotta-700"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -487,7 +487,7 @@ export default function CommunityAuthModal({
                   Display Name
                 </Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-400" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-500" />
                   <Input
                     id="reg-displayname"
                     type="text"
@@ -506,7 +506,7 @@ export default function CommunityAuthModal({
                   Username
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-terracotta-400 font-body text-sm">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-terracotta-500 font-body text-sm">
                     @
                   </span>
                   <Input
@@ -528,7 +528,7 @@ export default function CommunityAuthModal({
                   Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-500" />
                   <Input
                     id="reg-password"
                     type={showPassword ? "text" : "password"}
@@ -541,7 +541,7 @@ export default function CommunityAuthModal({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-terracotta-400 hover:text-terracotta-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-terracotta-500 hover:text-terracotta-700"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -559,7 +559,7 @@ export default function CommunityAuthModal({
                   Confirm Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-terracotta-500" />
                   <Input
                     id="reg-confirm"
                     type={showConfirm ? "text" : "password"}
@@ -572,7 +572,7 @@ export default function CommunityAuthModal({
                   <button
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-terracotta-400 hover:text-terracotta-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-terracotta-500 hover:text-terracotta-700"
                   >
                     {showConfirm ? (
                       <EyeOff className="w-4 h-4" />

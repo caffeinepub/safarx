@@ -73,7 +73,7 @@ function DestinationDetailContent({ id }: { id: string }) {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
           <Link
             to="/destinations"
-            className="inline-flex items-center gap-1.5 font-body text-sm text-ivory-300 hover:text-ivory-100 mb-4 transition-colors"
+            className="inline-flex items-center gap-1.5 font-body text-sm text-ivory-100 hover:text-white mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             All Destinations
@@ -84,14 +84,14 @@ function DestinationDetailContent({ id }: { id: string }) {
             </Badge>
             <Badge
               variant="outline"
-              className="border-ivory-300/50 text-ivory-200 font-body text-xs"
+              className="border-ivory-200/60 text-ivory-100 font-body text-xs"
             >
               {destination.state}
             </Badge>
             {destination.tag && (
               <Badge
                 variant="outline"
-                className="border-saffron-400/50 text-saffron-200 font-body text-xs"
+                className="border-saffron-400/60 text-saffron-100 font-body text-xs"
               >
                 {destination.tag}
               </Badge>
@@ -168,7 +168,7 @@ function DestinationDetailContent({ id }: { id: string }) {
                       <Clock className="w-4 h-4 text-saffron-600" />
                     </div>
                     <div>
-                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="font-body text-xs text-foreground/55 uppercase tracking-wider mb-0.5">
                         Best Time to Visit
                       </p>
                       <p className="font-body text-sm text-foreground font-medium">
@@ -183,7 +183,7 @@ function DestinationDetailContent({ id }: { id: string }) {
                       <Navigation className="w-4 h-4 text-teal-600" />
                     </div>
                     <div>
-                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="font-body text-xs text-foreground/55 uppercase tracking-wider mb-0.5">
                         How to Reach
                       </p>
                       <p className="font-body text-sm text-foreground font-medium">
@@ -197,7 +197,7 @@ function DestinationDetailContent({ id }: { id: string }) {
                     <MapPin className="w-4 h-4 text-terracotta-600" />
                   </div>
                   <div>
-                    <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
+                    <p className="font-body text-xs text-foreground/55 uppercase tracking-wider mb-0.5">
                       State / Region
                     </p>
                     <p className="font-body text-sm text-foreground font-medium">

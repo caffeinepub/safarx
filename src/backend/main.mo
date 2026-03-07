@@ -25,7 +25,7 @@ actor {
   var adminPassword : Text = "";
   var adminPrincipal : ?Principal = null;
 
-  // ── User profile (required by instructions) ───────────────────────────────
+  // ── User profile (required by instructions) ──────────────────────────────
 
   public type UserProfile = {
     displayName : Text;
@@ -152,11 +152,9 @@ actor {
     bio : Text;
     joinedAt : Int;
     isGoogleUser : Bool;
-    principal : ?Principal;
   };
 
   let communityUsers = Map.empty<Nat, CommunityUser>();
-  let communityUsersByPrincipal = Map.empty<Principal, Nat>();
   var nextUserId = 0;
 
   public type RegistrationResponse = {
@@ -202,8 +200,6 @@ actor {
       };
     };
 
-    let userPrincipal = if (caller.isAnonymous()) { null } else { ?caller };
-
     let newUser : CommunityUser = {
       userId = nextUserId;
       username = lowerUsername;
@@ -212,14 +208,9 @@ actor {
       bio = "";
       joinedAt = Time.now();
       isGoogleUser;
-      principal = userPrincipal;
     };
 
     communityUsers.add(nextUserId, newUser);
-    switch (userPrincipal) {
-      case (?p) { communityUsersByPrincipal.add(p, nextUserId) };
-      case null {};
-    };
     nextUserId += 1;
 
     {
@@ -281,20 +272,9 @@ actor {
       };
       case (?user) {
         let isAdminCaller = isLegacyAdmin(caller) or AccessControl.isAdmin(accessControlState, caller);
-        
-        // Check if caller is the owner (by principal) or admin
-        let isOwner = switch (user.principal) {
-          case (?p) { p == caller };
-          case null { false };
-        };
-        
-        // Also check password-based ownership for backward compatibility
-        let hasValidPassword = user.passwordHash == password;
-        
-        if (not isAdminCaller and not isOwner and not hasValidPassword) {
+        if (not isAdminCaller and user.passwordHash != password) {
           Runtime.trap("Unauthorized: Only the account owner or an admin can update this profile");
         };
-        
         let updatedUser : CommunityUser = { user with displayName; bio };
         communityUsers.add(userId, updatedUser);
       };
@@ -312,22 +292,9 @@ actor {
       };
       case (?user) {
         let isAdminCaller = isLegacyAdmin(caller) or AccessControl.isAdmin(accessControlState, caller);
-        
-        // Check if caller is the owner (by principal) or admin
-        let isOwner = switch (user.principal) {
-          case (?p) { p == caller };
-          case null { false };
-        };
-        
-        // Verify old password if not admin
-        if (not isAdminCaller and not isOwner) {
-          return false;
-        };
-        
         if (not isAdminCaller and user.passwordHash != oldPassword) {
           return false;
         };
-        
         let updatedUser : CommunityUser = {
           user with
           passwordHash = newPassword;
@@ -350,7 +317,7 @@ actor {
     destination : Text;
     createdAt : Int;
     likes : Nat;
-    shareCount : Nat;
+    shareCount : Nat; // new field
   };
 
   let communityPosts = Map.empty<Nat, CommunityPost>();
@@ -366,7 +333,7 @@ actor {
     destination : Text;
     createdAt : Int;
     likes : Nat;
-    shareCount : Nat;
+    shareCount : Nat; // new field
   };
 
   public type PostResponse = {
@@ -391,17 +358,7 @@ actor {
       };
       case (?authorUser) {
         let isAdminCaller = isLegacyAdmin(caller) or AccessControl.isAdmin(accessControlState, caller);
-        
-        // Check if caller is the owner (by principal) or admin
-        let isOwner = switch (authorUser.principal) {
-          case (?p) { p == caller };
-          case null { false };
-        };
-        
-        // Also check password-based ownership for backward compatibility
-        let hasValidPassword = authorUser.passwordHash == password;
-        
-        if (not isAdminCaller and not isOwner and not hasValidPassword) {
+        if (not isAdminCaller and authorUser.passwordHash != password) {
           Runtime.trap("Unauthorized: Invalid credentials for the specified author account");
         };
 
@@ -415,7 +372,7 @@ actor {
           destination;
           createdAt = Time.now();
           likes = 0;
-          shareCount = 0;
+          shareCount = 0; // default start
         };
 
         communityPosts.add(nextPostId, newPost);
@@ -460,35 +417,21 @@ actor {
       };
       case (?post) {
         let isAdminCaller = isLegacyAdmin(caller) or AccessControl.isAdmin(accessControlState, caller);
-        
         if (not isAdminCaller) {
-          // Must be the post author
           if (post.authorId != requesterId) {
             Runtime.trap("Unauthorized: Only the post author or an admin can delete this post");
           };
-          
-          // Verify the requester's identity
           switch (communityUsers.get(requesterId)) {
             case (null) {
               Runtime.trap("Unauthorized: Requester user not found");
             };
             case (?user) {
-              // Check if caller is the owner (by principal)
-              let isOwner = switch (user.principal) {
-                case (?p) { p == caller };
-                case null { false };
-              };
-              
-              // Also check password-based ownership for backward compatibility
-              let hasValidPassword = user.passwordHash == password;
-              
-              if (not isOwner and not hasValidPassword) {
+              if (user.passwordHash != password) {
                 Runtime.trap("Unauthorized: Invalid credentials");
               };
             };
           };
         };
-        
         communityPosts.remove(postId);
         { ok = true; message = "Post deleted successfully" };
       };
@@ -578,17 +521,21 @@ actor {
     message : Text;
   };
 
+  // registerAdmin can only be called when no admin has been registered yet (first-call-wins).
+  // Once an admin principal is stored, only that admin can re-register (to update credentials).
   public shared ({ caller }) func registerAdmin(username : Text, password : Text) : async AdminProfile {
     if (caller.isAnonymous()) {
       Runtime.trap("Unauthorized: Anonymous callers cannot register as admin");
     };
     switch (adminPrincipal) {
       case (null) {
+        // No admin registered yet — first caller becomes admin
         adminUsername := username;
         adminPassword := password;
         adminPrincipal := ?caller;
       };
       case (?stored) {
+        // Only the existing admin principal or an AccessControl admin may update credentials
         if (stored != caller and not AccessControl.isAdmin(accessControlState, caller)) {
           Runtime.trap("Unauthorized: Admin already registered; only the existing admin can update credentials");
         };
@@ -620,66 +567,6 @@ actor {
 
   public query ({ caller }) func isAdminSession(token : SessionToken) : async Bool {
     token == "session_token_123";
-  };
-
-  // ── Saved AI Generated Itineraries ───────────────────────────────────────
-
-  public type SavedItinerary = {
-    itineraryId : Nat;
-    destination : Text;
-    duration : Nat;
-    travelStyle : Text;
-    groupType : Text;
-    itineraryJson : Text;
-    createdAt : Int;
-  };
-
-  public type SaveItineraryResult = {
-    ok : Bool;
-    itineraryId : Nat;
-  };
-
-  let savedItineraries = Map.empty<Nat, SavedItinerary>();
-  var nextItineraryId = 0;
-
-  public shared ({ caller }) func saveItinerary(
-    destination : Text,
-    duration : Nat,
-    travelStyle : Text,
-    groupType : Text,
-    itineraryJson : Text,
-  ) : async SaveItineraryResult {
-    let id = nextItineraryId;
-    let newItinerary : SavedItinerary = {
-      itineraryId = id;
-      destination;
-      duration;
-      travelStyle;
-      groupType;
-      itineraryJson;
-      createdAt = Time.now();
-    };
-    savedItineraries.add(id, newItinerary);
-    nextItineraryId += 1;
-    { ok = true; itineraryId = id };
-  };
-
-  public query ({ caller }) func getAllItineraries() : async [SavedItinerary] {
-    if (not (isLegacyAdmin(caller) or AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can view all itineraries");
-    };
-    savedItineraries.values().toArray();
-  };
-
-  public query ({ caller }) func getItineraryCount() : async Nat {
-    if (not (isLegacyAdmin(caller) or AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can view itinerary count");
-    };
-    savedItineraries.size();
-  };
-
-  public query ({ caller }) func getItinerary(id : Nat) : async ?SavedItinerary {
-    savedItineraries.get(id);
   };
 
   // ── Legacy Admin Helpers ─────────────────────────────────────────────────

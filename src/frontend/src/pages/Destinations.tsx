@@ -104,7 +104,7 @@ export default function Destinations() {
           <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-ivory-100 mb-4 text-shadow-hero">
             All Destinations
           </h1>
-          <p className="font-cormorant italic text-xl text-ivory-200 max-w-xl mx-auto">
+          <p className="font-cormorant italic text-xl text-ivory-100 max-w-xl mx-auto">
             From the peaks of the Himalayas to the tip of Kanyakumari — discover
             every facet of incredible India, including hidden gems off the
             beaten path.
@@ -153,7 +153,7 @@ export default function Destinations() {
       {/* Region Description */}
       <section className="py-6 bg-ivory-50 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="font-cormorant italic text-lg text-muted-foreground text-center">
+          <p className="font-cormorant italic text-lg text-foreground/80 text-center">
             {regionDescriptions[activeRegion]}
           </p>
         </div>

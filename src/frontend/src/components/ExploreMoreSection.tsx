@@ -85,7 +85,7 @@ export default function ExploreMoreSection({
               <p className="font-body text-sm font-semibold text-ivory-200 mb-1">
                 Discovering hidden gems…
               </p>
-              <p className="font-body text-xs text-teal-400">
+              <p className="font-body text-xs text-teal-300">
                 Our AI is crafting personalised suggestions for you
               </p>
             </div>
@@ -102,7 +102,7 @@ export default function ExploreMoreSection({
               <p className="font-body text-sm font-semibold text-ivory-200 mb-1">
                 Couldn't load suggestions
               </p>
-              <p className="font-body text-xs text-teal-400 mb-4">
+              <p className="font-body text-xs text-teal-300 mb-4">
                 {error instanceof Error && error.message.includes("API key")
                   ? "Gemini API key is not configured. Add VITE_GEMINI_API_KEY to your .env file."
                   : "Something went wrong while fetching AI suggestions. Your itinerary is unaffected."}
@@ -172,7 +172,7 @@ export default function ExploreMoreSection({
               </div>
             </div>
 
-            <p className="font-body text-xs text-teal-500 text-right">
+            <p className="font-body text-xs text-teal-300 text-right">
               ✨ Powered by Google Gemini AI
             </p>
           </div>

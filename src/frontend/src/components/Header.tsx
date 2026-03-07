@@ -60,7 +60,7 @@ export default function Header() {
                 SafarX
                 <span className="text-saffron-400">.in</span>
               </span>
-              <span className="text-[10px] text-ivory-300 font-body tracking-widest uppercase hidden sm:block">
+              <span className="text-[10px] text-ivory-200 font-body tracking-widest uppercase hidden sm:block">
                 Explore Incredible India
               </span>
             </div>

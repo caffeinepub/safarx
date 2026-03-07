@@ -91,7 +91,7 @@ function ProfilePostCard({ post, session }: ProfilePostCardProps) {
           <p className="font-body text-terracotta-600 text-sm line-clamp-2 leading-relaxed">
             {post.body}
           </p>
-          <div className="flex items-center gap-3 mt-2 text-xs text-terracotta-400 font-body">
+          <div className="flex items-center gap-3 mt-2 text-xs text-terracotta-600 font-body">
             <span>❤️ {post.likes.toString()} likes</span>
             <span>·</span>
             <span>{formatDate(post.createdAt)}</span>

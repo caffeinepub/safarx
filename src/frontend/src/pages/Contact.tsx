@@ -100,7 +100,7 @@ export default function Contact() {
                       <Mail className="w-5 h-5 text-saffron-600" />
                     </div>
                     <div>
-                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="font-body text-xs text-foreground/55 uppercase tracking-wider mb-0.5">
                         Email
                       </p>
                       <a
@@ -116,7 +116,7 @@ export default function Contact() {
                       <Phone className="w-5 h-5 text-teal-600" />
                     </div>
                     <div>
-                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="font-body text-xs text-foreground/55 uppercase tracking-wider mb-0.5">
                         Phone / WhatsApp
                       </p>
                       <a
@@ -132,7 +132,7 @@ export default function Contact() {
                       <Instagram className="w-5 h-5 text-terracotta-600" />
                     </div>
                     <div>
-                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="font-body text-xs text-foreground/55 uppercase tracking-wider mb-0.5">
                         Instagram
                       </p>
                       <a
@@ -150,7 +150,7 @@ export default function Contact() {
                       <Clock className="w-5 h-5 text-saffron-600" />
                     </div>
                     <div>
-                      <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="font-body text-xs text-foreground/55 uppercase tracking-wider mb-0.5">
                         Response Time
                       </p>
                       <p className="font-body text-sm text-foreground font-medium">
@@ -317,7 +317,7 @@ export default function Contact() {
                       type="submit"
                       size="lg"
                       disabled={submitInquiry.isPending}
-                      className="w-full bg-terracotta-700 hover:bg-terracotta-800 text-ivory-100 font-body font-semibold rounded-full h-12 gap-2 border-0"
+                      className="w-full bg-terracotta-800 hover:bg-terracotta-900 text-ivory-100 font-body font-semibold rounded-full h-12 gap-2 border-0"
                     >
                       {submitInquiry.isPending ? (
                         <>

@@ -93,7 +93,7 @@ export default function Community() {
                 <h3 className="font-display font-bold text-xl text-terracotta-800 mb-2">
                   Join the Community
                 </h3>
-                <p className="font-body text-terracotta-500 text-sm mb-6 max-w-xs mx-auto">
+                <p className="font-body text-terracotta-800 text-sm mb-6 max-w-xs mx-auto">
                   Log in or create an account to view your profile and share
                   your travel stories.
                 </p>

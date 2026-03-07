@@ -100,7 +100,7 @@ export default function Packages() {
                 className={`flex-shrink-0 px-4 py-2 rounded-full font-body text-sm font-medium transition-all ${
                   activeCategory === cat
                     ? "bg-saffron-500 text-terracotta-900 shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-saffron-100 hover:text-saffron-700"
+                    : "bg-muted text-foreground/70 hover:bg-saffron-100 hover:text-saffron-700"
                 }`}
               >
                 {cat}
@@ -151,7 +151,7 @@ export default function Packages() {
           <h2 className="font-display font-bold text-3xl sm:text-4xl mb-4">
             Can't Find Your Perfect Package?
           </h2>
-          <p className="font-body text-ivory-300 mb-8 max-w-xl mx-auto">
+          <p className="font-body text-ivory-200 mb-8 max-w-xl mx-auto">
             We specialise in crafting fully customised itineraries. Tell us your
             dream trip and we'll make it happen.
           </p>

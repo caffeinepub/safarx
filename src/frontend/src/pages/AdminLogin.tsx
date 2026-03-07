@@ -119,7 +119,7 @@ export default function AdminLogin() {
           <h1 className="font-display font-bold text-2xl text-ivory-100">
             SafarX Admin
           </h1>
-          <p className="font-body text-sm text-ivory-400 mt-1">
+          <p className="font-body text-sm text-ivory-200 mt-1">
             Secure access portal
           </p>
         </div>
@@ -138,7 +138,7 @@ export default function AdminLogin() {
                 className={`flex-1 py-2.5 font-body text-sm font-medium transition-colors ${
                   mode === "login"
                     ? "bg-saffron-500 text-terracotta-900"
-                    : "text-ivory-300 hover:text-ivory-100"
+                    : "text-ivory-200 hover:text-ivory-100"
                 }`}
               >
                 Login
@@ -153,7 +153,7 @@ export default function AdminLogin() {
                 className={`flex-1 py-2.5 font-body text-sm font-medium transition-colors ${
                   mode === "register"
                     ? "bg-saffron-500 text-terracotta-900"
-                    : "text-ivory-300 hover:text-ivory-100"
+                    : "text-ivory-200 hover:text-ivory-100"
                 }`}
               >
                 Register
@@ -162,7 +162,7 @@ export default function AdminLogin() {
             <CardTitle className="font-display text-ivory-100 text-lg">
               {mode === "login" ? "Welcome Back" : "Register Admin"}
             </CardTitle>
-            <CardDescription className="font-body text-ivory-400 text-sm">
+            <CardDescription className="font-body text-ivory-200 text-sm">
               {mode === "login"
                 ? "Enter your admin credentials to access the dashboard."
                 : "Connect with Internet Identity, then set your admin credentials."}
@@ -175,7 +175,7 @@ export default function AdminLogin() {
               <div className="mb-5 p-4 rounded-xl bg-terracotta-700/40 border border-terracotta-600/40">
                 <div className="flex items-center gap-3 mb-3">
                   <KeyRound className="w-4 h-4 text-saffron-400 flex-shrink-0" />
-                  <p className="font-body text-xs text-ivory-300">
+                  <p className="font-body text-xs text-ivory-100">
                     Internet Identity is required to register as admin (one-time
                     setup).
                   </p>
@@ -217,7 +217,7 @@ export default function AdminLogin() {
               <div className="space-y-1.5">
                 <Label
                   htmlFor="username"
-                  className="font-body text-xs font-medium text-ivory-300 uppercase tracking-wider"
+                  className="font-body text-xs font-medium text-ivory-100 uppercase tracking-wider"
                 >
                   Username
                 </Label>
@@ -236,7 +236,7 @@ export default function AdminLogin() {
               <div className="space-y-1.5">
                 <Label
                   htmlFor="password"
-                  className="font-body text-xs font-medium text-ivory-300 uppercase tracking-wider"
+                  className="font-body text-xs font-medium text-ivory-100 uppercase tracking-wider"
                 >
                   Password
                 </Label>

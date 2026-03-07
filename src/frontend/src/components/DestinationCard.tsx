@@ -33,7 +33,7 @@ export default function DestinationCard({
           alt={destination.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
         {/* Primary tag badge (top-left) */}
         {primaryTag && (
@@ -73,7 +73,7 @@ export default function DestinationCard({
 
         <div className="absolute bottom-3 left-3 flex items-center gap-1 text-ivory-100">
           <MapPin className="w-3 h-3 text-saffron-400" />
-          <span className="text-xs font-body font-medium text-shadow-sm">
+          <span className="text-xs font-body font-medium text-shadow-sm drop-shadow-sm">
             {destination.state}
           </span>
         </div>
@@ -87,7 +87,7 @@ export default function DestinationCard({
           </h3>
           <Badge
             variant="outline"
-            className="text-xs font-body shrink-0 border-border text-muted-foreground"
+            className="text-xs font-body shrink-0 border-border text-foreground/75"
           >
             {destination.region}
           </Badge>

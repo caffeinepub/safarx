@@ -89,20 +89,9 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface LoginResponse {
-    ok: boolean;
+export interface UserProfile {
+    bio: string;
     displayName: string;
-    userId: bigint;
-    message: string;
-}
-export interface Inquiry {
-    id: string;
-    destination: string;
-    name: string;
-    email: string;
-    message: string;
-    timestamp: Time;
-    phone: string;
 }
 export type Time = bigint;
 export interface _CaffeineStorageRefillInformation {
@@ -134,40 +123,38 @@ export interface UserProfilePublic {
     userId: bigint;
     joinedAt: bigint;
 }
-export interface SaveItineraryResult {
-    ok: boolean;
-    itineraryId: bigint;
-}
 export interface AdminProfile {
     principal: string;
     username: string;
 }
 export type SessionToken = string;
+export interface Inquiry {
+    id: string;
+    destination: string;
+    name: string;
+    email: string;
+    message: string;
+    timestamp: Time;
+    phone: string;
+}
+export interface LoginResponse {
+    ok: boolean;
+    displayName: string;
+    userId: bigint;
+    message: string;
+}
 export interface SessionResponse {
     ok: boolean;
     token: SessionToken;
     message: string;
 }
-export interface SavedItinerary {
-    destination: string;
-    duration: bigint;
-    itineraryId: bigint;
-    createdAt: bigint;
-    itineraryJson: string;
-    groupType: string;
-    travelStyle: string;
-}
-export interface PostResponse {
-    ok: boolean;
-    postId: bigint;
-}
 export interface _CaffeineStorageRefillResult {
     success?: boolean;
     topped_up_amount?: bigint;
 }
-export interface UserProfile {
-    bio: string;
-    displayName: string;
+export interface PostResponse {
+    ok: boolean;
+    postId: bigint;
 }
 export enum UserRole {
     admin = "admin",
@@ -198,7 +185,6 @@ export interface backendInterface {
     }>>;
     getAllInquiries(): Promise<Array<Inquiry>>;
     getAllInquiriesSortedByDestination(): Promise<Array<Inquiry>>;
-    getAllItineraries(): Promise<Array<SavedItinerary>>;
     getAllPosts(): Promise<Array<PostRecord>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -208,8 +194,6 @@ export interface backendInterface {
     }>;
     getInquiriesByDestination(destination: string): Promise<Array<Inquiry>>;
     getInquiry(id: string): Promise<Inquiry>;
-    getItinerary(id: bigint): Promise<SavedItinerary | null>;
-    getItineraryCount(): Promise<bigint>;
     getPostsByUser(userId: bigint): Promise<Array<PostRecord>>;
     getProfileByPrincipal(user: Principal): Promise<UserProfile | null>;
     getUserProfile(userId: bigint): Promise<UserProfilePublic | null>;
@@ -228,11 +212,10 @@ export interface backendInterface {
     registerAdmin(username: string, password: string): Promise<AdminProfile>;
     registerUser(username: string, password: string, displayName: string, isGoogleUser: boolean): Promise<RegistrationResponse>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    saveItinerary(destination: string, duration: bigint, travelStyle: string, groupType: string, itineraryJson: string): Promise<SaveItineraryResult>;
     submitInquiry(name: string, email: string, destination: string, message: string, phone: string): Promise<void>;
     updateUserProfile(userId: bigint, displayName: string, bio: string, password: string): Promise<void>;
 }
-import type { SavedItinerary as _SavedItinerary, UserProfile as _UserProfile, UserProfilePublic as _UserProfilePublic, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { UserProfile as _UserProfile, UserProfilePublic as _UserProfilePublic, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -453,20 +436,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllItineraries(): Promise<Array<SavedItinerary>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAllItineraries();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAllItineraries();
-            return result;
-        }
-    }
     async getAllPosts(): Promise<Array<PostRecord>> {
         if (this.processError) {
             try {
@@ -554,34 +523,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getItinerary(arg0: bigint): Promise<SavedItinerary | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getItinerary(arg0);
-                return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getItinerary(arg0);
-            return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getItineraryCount(): Promise<bigint> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getItineraryCount();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getItineraryCount();
-            return result;
-        }
-    }
     async getPostsByUser(arg0: bigint): Promise<Array<PostRecord>> {
         if (this.processError) {
             try {
@@ -614,14 +555,14 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserProfile(arg0);
-                return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserProfile(arg0);
-            return from_candid_opt_n15(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n14(this._uploadFile, this._downloadFile, result);
         }
     }
     async incrementShareCount(arg0: bigint): Promise<{
@@ -756,20 +697,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async saveItinerary(arg0: string, arg1: bigint, arg2: string, arg3: string, arg4: string): Promise<SaveItineraryResult> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.saveItinerary(arg0, arg1, arg2, arg3, arg4);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.saveItinerary(arg0, arg1, arg2, arg3, arg4);
-            return result;
-        }
-    }
     async submitInquiry(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string): Promise<void> {
         if (this.processError) {
             try {
@@ -808,10 +735,7 @@ function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: Externa
 function from_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SavedItinerary]): SavedItinerary | null {
-    return value.length === 0 ? null : value[0];
-}
-function from_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfilePublic]): UserProfilePublic | null {
+function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfilePublic]): UserProfilePublic | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {

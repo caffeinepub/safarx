@@ -134,7 +134,7 @@ function ShareButton({ post }: ShareButtonProps) {
         <button
           type="button"
           data-ocid="post.share_button"
-          className="flex items-center gap-1.5 text-terracotta-400 hover:text-saffron-600 transition-colors text-xs font-body"
+          className="flex items-center gap-1.5 text-terracotta-600 hover:text-saffron-600 transition-colors text-xs font-body"
           aria-label="Share this post"
         >
           <Share2 className="w-4 h-4" />
@@ -297,7 +297,7 @@ function PostCard({ post, session }: PostCardProps) {
               <p className="font-body font-semibold text-terracotta-800 text-sm leading-tight">
                 {post.authorDisplayName}
               </p>
-              <div className="flex items-center gap-1 text-terracotta-400 text-xs">
+              <div className="flex items-center gap-1 text-terracotta-700 text-xs font-medium">
                 <Clock className="w-3 h-3" />
                 <span className="font-body">
                   {formatRelativeTime(post.createdAt)}
@@ -349,7 +349,7 @@ function PostCard({ post, session }: PostCardProps) {
             type="button"
             onClick={handleLike}
             disabled={likeMutation.isPending}
-            className="flex items-center gap-1.5 text-terracotta-400 hover:text-red-500 transition-colors group disabled:opacity-60"
+            className="flex items-center gap-1.5 text-terracotta-600 hover:text-red-500 transition-colors group disabled:opacity-60"
           >
             <Heart className="w-4 h-4 group-hover:fill-red-500 transition-all" />
             <span className="font-body text-sm font-medium">
@@ -368,7 +368,7 @@ function PostCard({ post, session }: PostCardProps) {
                   setDeleteError("");
                   setDeletePassword("");
                 }}
-                className="flex items-center gap-1.5 text-terracotta-300 hover:text-red-500 transition-colors text-xs font-body"
+                className="flex items-center gap-1.5 text-terracotta-600 hover:text-red-500 transition-colors text-xs font-body"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 Delete
@@ -439,7 +439,7 @@ export default function CommunityFeed({ session, onLoginRequest }: Props) {
           <h2 className="font-display text-xl font-bold text-terracotta-800">
             Travel Stories
           </h2>
-          <p className="font-body text-terracotta-500 text-sm mt-0.5">
+          <p className="font-body text-terracotta-600 text-sm mt-0.5">
             {posts ? `${posts.length} stories shared` : "Loading stories..."}
           </p>
         </div>
@@ -489,7 +489,7 @@ export default function CommunityFeed({ session, onLoginRequest }: Props) {
 
       {/* Error */}
       {isError && (
-        <div className="text-center py-12 text-terracotta-500 font-body">
+        <div className="text-center py-12 text-terracotta-800 font-body">
           Failed to load posts. Please try again later.
         </div>
       )}
@@ -503,7 +503,7 @@ export default function CommunityFeed({ session, onLoginRequest }: Props) {
           <h3 className="font-display text-xl font-bold text-terracotta-700 mb-2">
             No stories yet
           </h3>
-          <p className="font-body text-terracotta-500 text-sm">
+          <p className="font-body text-terracotta-600 text-sm">
             Be the first to share your travel adventure!
           </p>
         </div>

@@ -109,7 +109,7 @@ export default function Home() {
                 <span className="font-display font-bold text-2xl text-ivory-100">
                   {value}
                 </span>
-                <span className="font-body text-xs text-ivory-300 uppercase tracking-wider">
+                <span className="font-body text-xs text-ivory-100 uppercase tracking-wider">
                   {label}
                 </span>
               </div>
@@ -176,7 +176,7 @@ export default function Home() {
           <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-ivory-100 mb-6 leading-tight">
             Every Corner of India Has a Story to Tell
           </h2>
-          <p className="font-cormorant italic text-xl text-ivory-200 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="font-cormorant italic text-xl text-ivory-100 mb-10 max-w-2xl mx-auto leading-relaxed">
             "The world is a book, and those who do not travel read only one
             page." — Let SafarX.in help you read every chapter of India's
             magnificent story.
@@ -193,7 +193,7 @@ export default function Home() {
       </section>
 
       {/* Why Choose SafarX */}
-      <section className="py-20 bg-ivory-100">
+      <section className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="inline-block font-body text-xs font-semibold text-primary uppercase tracking-widest mb-3">
@@ -215,7 +215,7 @@ export default function Home() {
                 <h3 className="font-display font-semibold text-lg text-foreground mb-2">
                   {item.title}
                 </h3>
-                <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                <p className="font-body text-sm text-foreground/75 leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -230,7 +230,7 @@ export default function Home() {
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-ivory-100 mb-4">
             Ready to Explore India?
           </h2>
-          <p className="font-body text-ivory-200 mb-8 text-base max-w-xl mx-auto">
+          <p className="font-body text-white mb-8 text-base max-w-xl mx-auto">
             Send us your travel wishlist and our experts will craft the perfect
             itinerary just for you.
           </p>

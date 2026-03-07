@@ -97,7 +97,7 @@ export default function ItineraryTimeline({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="bg-white/10 rounded-xl p-3">
-            <p className="font-body text-xs text-ivory-400 uppercase tracking-wider mb-1">
+            <p className="font-body text-xs text-ivory-300 uppercase tracking-wider mb-1">
               Best Time to Visit
             </p>
             <p className="font-body text-sm text-ivory-100 font-medium">
@@ -105,7 +105,7 @@ export default function ItineraryTimeline({
             </p>
           </div>
           <div className="bg-white/10 rounded-xl p-3">
-            <p className="font-body text-xs text-ivory-400 uppercase tracking-wider mb-1">
+            <p className="font-body text-xs text-ivory-300 uppercase tracking-wider mb-1">
               How to Reach
             </p>
             <p className="font-body text-sm text-ivory-100 font-medium line-clamp-2">
@@ -130,7 +130,7 @@ export default function ItineraryTimeline({
                 </span>
               </div>
               <div>
-                <p className="font-body text-xs text-white/70 uppercase tracking-wider">
+                <p className="font-body text-xs text-white/90 uppercase tracking-wider">
                   Day {day.day}
                 </p>
                 <h3 className="font-display font-bold text-white text-base leading-tight">

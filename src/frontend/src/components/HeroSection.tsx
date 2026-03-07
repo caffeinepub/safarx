@@ -47,7 +47,7 @@ export default function HeroSection({
       <div className="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-saffron-500/20 border border-saffron-400/40 mb-6 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-saffron-400 animate-pulse" />
-          <span className="font-body text-xs font-semibold text-saffron-300 tracking-widest uppercase">
+          <span className="font-body text-xs font-semibold text-saffron-200 tracking-widest uppercase">
             SafarX.in — Explore Incredible India
           </span>
         </div>
@@ -56,7 +56,7 @@ export default function HeroSection({
           {headline}
         </h1>
 
-        <p className="font-cormorant text-xl sm:text-2xl text-ivory-200 max-w-2xl mx-auto mb-10 leading-relaxed text-shadow-sm italic">
+        <p className="font-cormorant text-xl sm:text-2xl text-ivory-100 max-w-2xl mx-auto mb-10 leading-relaxed text-shadow-sm italic">
           {subheadline}
         </p>
 

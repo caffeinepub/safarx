@@ -177,7 +177,7 @@ export default function CreatePostModal({ open, onClose, session }: Props) {
             >
               <Image className="w-3.5 h-3.5" />
               Image URL{" "}
-              <span className="text-terracotta-400 font-normal text-xs">
+              <span className="text-terracotta-600 font-normal text-xs">
                 (optional)
               </span>
             </Label>
@@ -199,7 +199,7 @@ export default function CreatePostModal({ open, onClose, session }: Props) {
             >
               <MapPin className="w-3.5 h-3.5" />
               Destination Tag{" "}
-              <span className="text-terracotta-400 font-normal text-xs">
+              <span className="text-terracotta-600 font-normal text-xs">
                 (optional)
               </span>
             </Label>
